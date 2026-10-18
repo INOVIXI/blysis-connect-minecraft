@@ -162,4 +162,36 @@ final class HttpAccountsTest {
         assertThat(worth).isEqualByComparingTo("50");
         assertThat(body().get("voucherId").getAsString()).isEqualTo("gv_abc");
     }
+
+    @Test
+    @DisplayName("a name, a code or an answer the protocol cannot carry is refused here, in words a player reads")
+    void whatTheProtocolCannotCarryIsRefusedBeforeItIsSent() throws IOException {
+        HttpAccounts accounts = accounts(422, "{\"code\":\"invalid_request\",\"error\":\"too long\"}");
+        String longName = "x".repeat(65);
+
+        assertThatThrownBy(() -> accounts.transfer(NOTCH, longName, BigDecimal.ONE, "key-0001"))
+                .isInstanceOfSatisfying(
+                        SiteRefused.class, refused -> assertThat(refused.code()).isEqualTo("recipient_unknown"));
+        assertThatThrownBy(() -> accounts.transfer(NOTCH, "  ", BigDecimal.ONE, "key-0002"))
+                .isInstanceOfSatisfying(
+                        SiteRefused.class, refused -> assertThat(refused.code()).isEqualTo("recipient_unknown"));
+        assertThatThrownBy(() -> accounts.purchase(NOTCH, "p1", 1, Map.of(), longName, "key-0003"))
+                .isInstanceOfSatisfying(
+                        SiteRefused.class, refused -> assertThat(refused.code()).isEqualTo("recipient_unknown"));
+        assertThatThrownBy(() -> accounts.adminCredits(NOTCH, longName, "add", BigDecimal.ONE, "key-0004"))
+                .isInstanceOfSatisfying(
+                        SiteRefused.class, refused -> assertThat(refused.code()).isEqualTo("recipient_unknown"));
+        assertThatThrownBy(() -> accounts.verifyLink(NOTCH, "Z".repeat(33)))
+                .isInstanceOfSatisfying(
+                        SiteRefused.class, refused -> assertThat(refused.code()).isEqualTo("code_invalid"));
+        assertThatThrownBy(() -> accounts.verifyLink(NOTCH, "abc"))
+                .isInstanceOfSatisfying(
+                        SiteRefused.class, refused -> assertThat(refused.code()).isEqualTo("code_invalid"));
+        assertThatThrownBy(() -> accounts.purchase(NOTCH, "p1", 1, Map.of("realm", "r".repeat(201)), null, "key-0005"))
+                .isInstanceOfSatisfying(SiteRefused.class, refused -> {
+                    assertThat(refused.code()).isEqualTo("field_invalid");
+                    assertThat(refused.field()).isEqualTo("realm");
+                });
+        assertThat(lastPath.get()).isEmpty();
+    }
 }

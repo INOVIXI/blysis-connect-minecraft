@@ -12,6 +12,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.uxplima.blysis.application.port.Accounts;
+import com.uxplima.blysis.application.port.SiteRefused;
 import com.uxplima.blysis.application.port.SiteUnavailable;
 import com.uxplima.blysis.domain.PlayerRef;
 import com.uxplima.blysis.domain.account.Catalog;
@@ -30,6 +31,13 @@ import org.jspecify.annotations.Nullable;
  * an answer that is not the protocol's reads as the site being unavailable, never as a value.
  */
 public final class HttpAccounts implements Accounts {
+
+    /** The longest name, code and answer the protocol carries; past them the site can only call the body malformed. */
+    private static final int MOST_NAME = 64;
+
+    private static final int LEAST_CODE = 4;
+    private static final int MOST_CODE = 32;
+    private static final int MOST_ANSWER = 200;
 
     private final HttpSite site;
     private final String instance;
@@ -68,6 +76,9 @@ public final class HttpAccounts implements Accounts {
 
     @Override
     public String verifyLink(PlayerRef player, String code) {
+        if (code.strip().length() < LEAST_CODE || code.strip().length() > MOST_CODE) {
+            throw new SiteRefused(409, "code_invalid", "No code is that long or that short.");
+        }
         JsonObject body = withPlayer(player);
         body.addProperty("code", code);
         JsonObject answer = post("link/verify", body);
@@ -93,6 +104,14 @@ public final class HttpAccounts implements Accounts {
         JsonObject body = withPlayer(player);
         body.addProperty("productId", productId);
         body.addProperty("quantity", quantity);
+        if (recipient != null) {
+            requireName(recipient);
+        }
+        fields.forEach((field, typed) -> {
+            if (typed.length() > MOST_ANSWER) {
+                throw new SiteRefused(409, "field_invalid", "That answer is longer than any product takes.", field);
+            }
+        });
         JsonObject answers = new JsonObject();
         fields.forEach(answers::addProperty);
         body.add("fields", answers);
@@ -178,6 +197,7 @@ public final class HttpAccounts implements Accounts {
 
     @Override
     public BigDecimal transfer(PlayerRef player, String to, BigDecimal amount, String key) {
+        requireName(to);
         JsonObject body = withPlayer(player);
         body.addProperty("to", to);
         body.addProperty("amount", amount);
@@ -189,6 +209,7 @@ public final class HttpAccounts implements Accounts {
     @Override
     public BigDecimal adminCredits(
             PlayerRef actor, String target, String operation, @Nullable BigDecimal amount, String key) {
+        requireName(target);
         JsonObject body = new JsonObject();
         body.addProperty("instance", instance);
         body.add("actor", player(actor));
@@ -264,6 +285,13 @@ public final class HttpAccounts implements Accounts {
         body.addProperty("voucherId", voucherId);
         JsonObject answer = post("vouchers/redeem", body);
         return read("vouchers/redeem", () -> answer.get("amount").getAsBigDecimal());
+    }
+
+    /** A name nobody can have is nobody, which is what a player is told. */
+    private static void requireName(String typed) {
+        if (typed.isBlank() || typed.length() > MOST_NAME) {
+            throw new SiteRefused(409, "recipient_unknown", "Nobody has a name like that.");
+        }
     }
 
     private static Voucher voucherOf(JsonObject answer) {

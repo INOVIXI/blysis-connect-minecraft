@@ -127,6 +127,16 @@ public final class SqlJournal implements Journal {
                         .toList());
     }
 
+    /** How many outcomes the site has not acknowledged, for an operator. */
+    public int unreportedCount() {
+        return sql.queryFirst(
+                        "SELECT COUNT(*) AS waiting FROM blysisconnect_journal"
+                                + " WHERE acknowledged_at IS NULL AND outcome IS NOT NULL",
+                        statement -> {},
+                        row -> row.getInt("waiting"))
+                .orElse(0);
+    }
+
     /** Removes acknowledged rows old enough that the site can no longer offer their job again. */
     public int sweep() {
         long before = clock.millis() - KEPT.toMillis();

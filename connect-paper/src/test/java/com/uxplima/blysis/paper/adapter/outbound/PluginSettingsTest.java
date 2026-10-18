@@ -47,7 +47,7 @@ final class PluginSettingsTest {
     @Test
     @DisplayName("a file with no language block follows the client in English")
     void defaultsWithoutTheBlock(@TempDir Path folder) throws IOException {
-        LanguageSettings language = settingsFrom(folder, "example { limit = 3 }\n");
+        LanguageSettings language = settingsFrom(folder, "connection { retry-first-seconds = 3 }\n");
 
         assertThat(language.defaultLocale()).isEqualTo(Locale.ENGLISH);
         assertThat(language.followClient()).isTrue();
@@ -58,5 +58,33 @@ final class PluginSettingsTest {
         Path file = folder.resolve("config.conf");
         Files.writeString(file, body, StandardCharsets.UTF_8);
         return new PluginSettings(file).current().language();
+    }
+
+    @Test
+    @DisplayName("a server with no address or token starts unconfigured, with the shipped blocklist")
+    void startsUnconfigured(@TempDir Path folder) throws IOException {
+        Path file = folder.resolve("config.conf");
+        Files.writeString(file, "language { default = \"en\" }\n", StandardCharsets.UTF_8);
+
+        var connect = new PluginSettings(file).current().connect();
+
+        assertThat(connect.configured()).isFalse();
+        assertThat(connect.blocked()).contains("op", "stop");
+        assertThat(connect.toString()).doesNotContain("gc_");
+    }
+
+    @Test
+    @DisplayName("a token that is not one the site issued is refused, and the reload keeps the last good file")
+    void refusesAMalformedToken(@TempDir Path folder) throws IOException {
+        Path file = folder.resolve("config.conf");
+        Files.writeString(file, "site { address = \"https://example.com\", token = \"\" }\n", StandardCharsets.UTF_8);
+        PluginSettings settings = new PluginSettings(file);
+        Files.writeString(
+                file, "site { address = \"https://example.com\", token = \"secret\" }\n", StandardCharsets.UTF_8);
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(settings::reload)
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageNotContaining("secret");
+        assertThat(settings.current().connect().address()).isEqualTo("https://example.com");
     }
 }

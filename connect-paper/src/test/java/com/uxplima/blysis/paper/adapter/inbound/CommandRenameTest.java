@@ -9,14 +9,19 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import com.uxplima.blysis.paper.adapter.inbound.command.AdminCommand;
+import com.uxplima.blysis.paper.adapter.inbound.command.LanguageSuggestions;
 import com.uxplima.blysis.paper.adapter.outbound.PluginSettings;
 import com.uxplima.blysis.paper.testing.DirectScheduler;
 import com.uxplima.uxmlib.command.annotation.AnnotatedCommands;
 import com.uxplima.uxmlib.command.annotation.ConfiguredCommands;
 import com.uxplima.uxmlib.command.annotation.ParamResolvers;
 import com.uxplima.uxmlib.command.annotation.annotations.FromConfig;
+import com.uxplima.uxmlib.text.language.LanguageChoices;
+import com.uxplima.uxmlib.text.language.LanguageResolver;
+import com.uxplima.uxmlib.text.language.PlayerLanguages;
 import com.uxplima.uxmlib.text.message.LocaleSource;
 import com.uxplima.uxmlib.text.message.MessageCatalogLoader;
 import com.uxplima.uxmlib.text.message.Messages;
@@ -49,11 +54,15 @@ final class CommandRenameTest {
                 }
                 """, StandardCharsets.UTF_8);
 
+        PluginSettings settings = settingsIn(folder);
+        LanguageResolver resolver = new LanguageResolver(settings.current().language(), PlayerLanguages.inMemory());
+        LanguageChoices choices = new LanguageChoices(
+                () -> Set.of(Locale.ENGLISH), resolver, settings.current().language());
         ConfiguredCommands commands = ConfiguredCommands.load(file);
-        ParamResolvers resolvers = ParamResolvers.withDefaults().replacer(FromConfig.class, commands.replacer());
-
-        AdminCommand handler =
-                new AdminCommand(settingsIn(folder), messages(), "test", new DirectScheduler(), List::of);
+        ParamResolvers resolvers = ParamResolvers.withDefaults()
+                .replacer(FromConfig.class, commands.replacer())
+                .suggestions(LanguageSuggestions.KEY, new LanguageSuggestions(choices));
+        AdminCommand handler = new AdminCommand(settings, messages(), "test", new DirectScheduler(), List::of, choices);
 
         assertThat(AnnotatedCommands.buildNode(handler, resolvers).getLiteral()).isEqualTo("renamed");
     }

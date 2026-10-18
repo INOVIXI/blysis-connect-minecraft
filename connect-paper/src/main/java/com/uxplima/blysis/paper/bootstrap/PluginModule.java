@@ -11,18 +11,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.uxplima.blysis.paper.adapter.inbound.command.AdminCommand;
-import com.uxplima.blysis.paper.adapter.inbound.command.ExampleCommand;
 import com.uxplima.blysis.paper.adapter.inbound.command.LanguageSuggestions;
 import com.uxplima.blysis.paper.adapter.inbound.listener.LanguageListener;
-import com.uxplima.blysis.paper.adapter.outbound.InMemoryExampleRepository;
+import com.uxplima.blysis.paper.adapter.inbound.listener.PresenceListener;
+import com.uxplima.blysis.paper.adapter.outbound.OnlinePlayers;
 import com.uxplima.blysis.paper.adapter.outbound.PluginHealth;
 import com.uxplima.blysis.paper.adapter.outbound.PluginSettings;
-import com.uxplima.blysis.paper.application.CreateExample;
 import com.uxplima.blysis.paper.application.message.Keys;
-import com.uxplima.blysis.paper.application.port.ExampleRepository;
 import com.uxplima.uxmlib.command.annotation.AnnotatedCommands;
 import com.uxplima.uxmlib.command.annotation.CommandMessages;
 import com.uxplima.uxmlib.command.annotation.ConfiguredCommands;
@@ -81,6 +80,8 @@ final class PluginModule {
 
     private @Nullable TaskHandle saveTask;
 
+    private @Nullable ConnectionWiring connection;
+
     PluginModule(JavaPlugin plugin) {
         this.plugin = Objects.requireNonNull(plugin, "plugin");
         Path dataFolder = plugin.getDataFolder().toPath();
@@ -111,16 +112,32 @@ final class PluginModule {
         LanguageChoices choices = new LanguageChoices(
                 this::foundLocales, resolver, settings.current().language());
 
-        ExampleRepository repository = new InMemoryExampleRepository();
-        CreateExample createExample =
-                new CreateExample(repository, settings.current().exampleLimit());
+        OnlinePlayers online = new OnlinePlayers();
+        // A reload enables the plugin with players already on: they joined before this list existed.
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            online.joined(player.getUniqueId(), player.getName());
+        }
+        ConnectionWiring connection = new ConnectionWiring(
+                plugin.getServer(),
+                scheduler,
+                plugin.getSLF4JLogger(),
+                plugin.getDataFolder().toPath(),
+                plugin.getPluginMeta().getVersion(),
+                online,
+                () -> settings.current().connect());
+        this.connection = connection;
+        settings.afterReload(connection::reloaded);
 
         plugin.getServer().getPluginManager().registerEvents(new LanguageListener(resolver), plugin);
+        plugin.getServer()
+                .getPluginManager()
+                .registerEvents(new PresenceListener(online, connection::statusSoon), plugin);
         // The store answers from memory and owes the disk a write. The write happens here, on a timer and
         // once more at shutdown, so a busy server never touches the disk on the thread that draws a message.
         this.saveTask = scheduler.asyncTimer(SAVE_PERIOD, SAVE_PERIOD, handle -> saveChoices());
 
-        registerCommands(scheduler, messages, choices, createExample, repository);
+        registerCommands(scheduler, messages, choices);
+        connection.start();
     }
 
     /**
@@ -130,7 +147,11 @@ final class PluginModule {
      * says so. Every check is read only, which is why the branch runs the whole list on the lane.
      */
     private java.util.List<com.uxplima.uxmlib.health.HealthCheck> healthChecks() {
-        return java.util.List.of(PluginHealth.content(() -> settings.current().exampleLimit()));
+        ConnectionWiring wired = connection;
+        if (wired == null) {
+            return java.util.List.of();
+        }
+        return java.util.List.of(PluginHealth.site(wired::state), PluginHealth.journal(wired::unreported));
     }
 
     /**
@@ -141,6 +162,11 @@ final class PluginModule {
      * not a task that runs while the server is already tearing the plugin down.
      */
     void shutdown() {
+        ConnectionWiring wired = connection;
+        if (wired != null) {
+            wired.stop();
+            connection = null;
+        }
         if (saveTask != null) {
             saveTask.cancel();
             saveTask = null;
@@ -167,12 +193,7 @@ final class PluginModule {
         }
     }
 
-    private void registerCommands(
-            Scheduler scheduler,
-            Messages messages,
-            LanguageChoices choices,
-            CreateExample createExample,
-            ExampleRepository repository) {
+    private void registerCommands(Scheduler scheduler, Messages messages, LanguageChoices choices) {
         // commands.conf names every command. @FromConfig carries only a key, and this replacer
         // rewrites it into the @Command the DSL expects. A handler must never also declare
         // @Command: uxmLib keeps a declared annotation over a produced one, so the file would be
@@ -184,18 +205,16 @@ final class PluginModule {
                 .replacer(FromConfig.class, commands.replacer())
                 .suggestions(LanguageSuggestions.KEY, new LanguageSuggestions(choices));
 
-        if (commands.isEnabled(ExampleCommand.KEY, "example")) {
-            AnnotatedCommands.register(
-                    plugin,
-                    new ExampleCommand(createExample, repository, messages, choices, settings),
-                    resolvers,
-                    scheduler);
-        }
         if (commands.isEnabled(AdminCommand.KEY, "blysis")) {
             AnnotatedCommands.register(
                     plugin,
                     new AdminCommand(
-                            settings, messages, plugin.getPluginMeta().getVersion(), scheduler, this::healthChecks),
+                            settings,
+                            messages,
+                            plugin.getPluginMeta().getVersion(),
+                            scheduler,
+                            this::healthChecks,
+                            choices),
                     resolvers,
                     scheduler);
         }

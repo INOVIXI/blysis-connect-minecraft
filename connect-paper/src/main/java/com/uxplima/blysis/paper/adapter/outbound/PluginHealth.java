@@ -1,8 +1,9 @@
 package com.uxplima.blysis.paper.adapter.outbound;
 
-import java.util.function.IntSupplier;
+import java.util.Optional;
 import java.util.function.Supplier;
 
+import com.uxplima.blysis.domain.LinkState;
 import com.uxplima.uxmlib.health.HealthCheck;
 import com.uxplima.uxmlib.health.HealthResult;
 
@@ -22,17 +23,34 @@ public final class PluginHealth {
     private PluginHealth() {}
 
     /**
-     * How much content was read.
+     * Whether this server reaches its site.
      *
-     * <p>None is a failure rather than a warning: a plugin with nothing configured does nothing
+     * <p>Not set up is a failure: a server with no address or token delivers nothing, and an operator asking
+     * the doctor is the one who needs to hear it.
      */
-    public static HealthCheck content(IntSupplier read) {
-        return check("content", () -> {
-            int count = read.getAsInt();
-            return count == 0
-                    ? HealthResult.fail("nothing was read: a plugin with nothing configured does nothing")
-                    : HealthResult.ok(count + " read");
-        });
+    public static HealthCheck site(Supplier<Optional<LinkState>> state) {
+        return check(
+                "site",
+                () -> state.get()
+                        .map(now -> switch (now) {
+                            case CONNECTED -> HealthResult.ok("connected");
+                            case CONNECTING -> HealthResult.warn("connecting");
+                            case UNREACHABLE -> HealthResult.warn("the site does not answer; the console says why");
+                            case STOPPED -> HealthResult.fail("the site refused this server; the console says why");
+                        })
+                        .orElseGet(() -> HealthResult.fail("site.address and site.token in config.conf are empty")));
+    }
+
+    /** How many outcomes the site has not acknowledged yet. A few is normal; they go with the next report. */
+    public static HealthCheck journal(Supplier<Optional<Integer>> unreported) {
+        return check(
+                "journal",
+                () -> unreported
+                        .get()
+                        .map(count -> count == 0
+                                ? HealthResult.ok("every outcome reached the site")
+                                : HealthResult.warn(count + " outcomes wait for the site"))
+                        .orElseGet(() -> HealthResult.ok("no journal: this server is not connected")));
     }
 
     private static HealthCheck check(String name, Supplier<HealthResult> answer) {

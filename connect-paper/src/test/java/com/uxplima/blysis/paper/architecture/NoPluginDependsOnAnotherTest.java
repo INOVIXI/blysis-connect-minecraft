@@ -38,12 +38,16 @@ import org.junit.jupiter.api.Test;
  */
 final class NoPluginDependsOnAnotherTest {
 
-    private static final Path SOURCE = Path.of("src", "main", "java");
+    /**
+     * Every module of this build, not just this one. The plugin ships as a common half and a Paper and a
+     * Velocity surface, and an import in any of them is an import in the product an operator installs.
+     */
+    private static final Path SOURCE = Path.of("..");
 
     private static final Path DESCRIPTOR = Path.of("src", "main", "resources", "paper-plugin.yml");
 
     /** This plugin's own root package. Everything under it is itself. */
-    private static final String OURS = "com.uxplima.blysis.paper.";
+    private static final String OURS = "com.uxplima.blysis.";
 
     /** The library, which every plugin is built on and which is never installed as a plugin beside us. */
     private static final String LIBRARY = "com.uxplima.uxmlib.";
@@ -63,8 +67,9 @@ final class NoPluginDependsOnAnotherTest {
         List<String> borrowed = new ArrayList<>();
 
         try (Stream<Path> files = Files.walk(SOURCE)) {
-            for (Path file :
-                    files.filter(path -> path.toString().endsWith(".java")).toList()) {
+            for (Path file : files.filter(path -> path.toString().endsWith(".java"))
+                    .filter(path -> !path.toString().contains("/build/"))
+                    .toList()) {
                 Matcher imported = IMPORT.matcher(Files.readString(file, StandardCharsets.UTF_8));
                 while (imported.find()) {
                     String named = imported.group(1);
@@ -129,7 +134,9 @@ final class NoPluginDependsOnAnotherTest {
                         + " is wrong and the other half of this test is reading an empty string.")
                 .contains("name:");
         try (Stream<Path> files = Files.walk(SOURCE)) {
-            assertThat(files.filter(path -> path.toString().endsWith(".java")).count())
+            assertThat(files.filter(path -> path.toString().endsWith(".java"))
+                            .filter(path -> !path.toString().contains("/build/"))
+                            .count())
                     .describedAs("a source scan that finds no Java is a broken scan")
                     .isGreaterThan(10);
         }

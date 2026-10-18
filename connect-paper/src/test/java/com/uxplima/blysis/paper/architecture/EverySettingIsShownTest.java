@@ -227,7 +227,16 @@ final class EverySettingIsShownTest {
      */
     private static Set<String> pathsNamed() throws IOException {
         Set<String> paths = new LinkedHashSet<>();
-        try (java.util.stream.Stream<Path> files = Files.walk(Path.of("src", "main", "java"))) {
+        // This module and the common one: the connection's keys are read there, the same on both platforms.
+        for (Path root :
+                List.of(Path.of("src", "main", "java"), Path.of("..", "connect-common", "src", "main", "java"))) {
+            pathsNamedUnder(root, paths);
+        }
+        return paths;
+    }
+
+    private static void pathsNamedUnder(Path root, Set<String> paths) throws IOException {
+        try (java.util.stream.Stream<Path> files = Files.walk(root)) {
             for (Path file :
                     files.filter(path -> path.toString().endsWith(".java")).toList()) {
                 Matcher named = PATH_SHAPED.matcher(Files.readString(file, StandardCharsets.UTF_8));
@@ -236,6 +245,5 @@ final class EverySettingIsShownTest {
                 }
             }
         }
-        return paths;
     }
 }

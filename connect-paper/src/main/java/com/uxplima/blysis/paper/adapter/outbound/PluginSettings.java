@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+import com.uxplima.blysis.adapter.outbound.ConnectSettingsFile;
+import com.uxplima.blysis.application.ConnectSettings;
 import com.uxplima.uxmlib.config.HoconConfig;
 import com.uxplima.uxmlib.text.language.LanguageSettings;
 import org.jspecify.annotations.Nullable;
@@ -39,13 +41,11 @@ public final class PluginSettings {
     }
 
     /** One immutable snapshot of the file. */
-    public record Snapshot(LanguageSettings language, int exampleLimit) {
+    public record Snapshot(LanguageSettings language, ConnectSettings connect) {
 
         public Snapshot {
             Objects.requireNonNull(language, "language");
-            if (exampleLimit < 1) {
-                throw new IllegalArgumentException("example-limit must be at least 1, got: " + exampleLimit);
-            }
+            Objects.requireNonNull(connect, "connect");
         }
 
         /** The language every message falls back to. */
@@ -97,7 +97,7 @@ public final class PluginSettings {
 
     private Snapshot read() {
         HoconConfig config = HoconConfig.load(file);
-        return new Snapshot(language(config), config.getInt("example.limit", 3));
+        return new Snapshot(language(config), ConnectSettingsFile.read(config));
     }
 
     /**

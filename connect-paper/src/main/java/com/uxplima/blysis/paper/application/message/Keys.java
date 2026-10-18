@@ -15,15 +15,6 @@ public enum Keys implements MessageKey {
     RELOADED("admin.reloaded", "<tag:'BLYSIS'> <body>The configuration is loaded again, in <value><ms><body> ms."),
     RELOAD_FAILED("admin.reload-failed", "<etag:'ERROR'> <body>The reload failed. The console holds the reason."),
 
-    INVALID_NAME(
-            "error.invalid-name", "<etag:'ERROR'> <body>A name holds lower-case letters, digits and hyphens only."),
-
-    EXAMPLE_CREATED("example.created", "<tag:'BLYSIS'> <body><value><name><body> is created."),
-    EXAMPLE_EXISTS("example.exists", "<etag:'ERROR'> <body>You already have <value><name><body>."),
-    EXAMPLE_LIMIT("example.limit", "<etag:'ERROR'> <body>You have reached your limit of <value><limit><body>."),
-    EXAMPLE_LIST_EMPTY("example.list-empty", "<tag:'BLYSIS'> <body>You have nothing yet."),
-    EXAMPLE_LIST("example.list", "<tag:'BLYSIS'> <body>Yours: <value><names>"),
-
     LANGUAGE_CURRENT("language.current", "<tag:'BLYSIS'> <body>You read this in <value><language><body>."),
     LANGUAGE_CHOICES("language.choices", "<tag:'BLYSIS'> <body>You may read it in <value><languages><body>."),
     LANGUAGE_CHANGED("language.changed", "<tag:'BLYSIS'> <body>You now read this in <value><language><body>."),

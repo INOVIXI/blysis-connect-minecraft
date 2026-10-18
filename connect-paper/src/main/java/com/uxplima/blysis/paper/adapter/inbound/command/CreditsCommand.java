@@ -13,6 +13,7 @@ import net.kyori.adventure.text.Component;
 import com.uxplima.blysis.application.Answer;
 import com.uxplima.blysis.application.Once;
 import com.uxplima.blysis.domain.PlayerRef;
+import com.uxplima.blysis.domain.account.Amounts;
 import com.uxplima.blysis.domain.account.Profile;
 import com.uxplima.blysis.domain.account.TopEntry;
 import com.uxplima.blysis.paper.adapter.inbound.Replies;
@@ -90,7 +91,7 @@ public final class CreditsCommand {
             @Arg(value = "kind", optional = true, def = "balance") String kind,
             @Arg(value = "period", optional = true, def = "all") String period) {
         CommandSender asker = sender.bukkit();
-        String readKind = kind.equals("topups") ? "topups" : "balance";
+        String readKind = List.of("topups", "latest").contains(kind) ? kind : "balance";
         String readPeriod = List.of("day", "month", "year").contains(period) ? period : "all";
         replies.ask(
                 asker,

@@ -45,6 +45,22 @@ adding a `messages_<language>.conf`.
 
 `/blysis doctor` says how the connection, the journal, the windows and the placeholders are.
 
+## Installing on Velocity
+
+A network gives the proxy a token of its own, and every server behind it its own as well. Each
+process keeps its own connection, so a server receives its deliveries even while the proxy is
+down. A product command meant for the network as a whole runs on the proxy's console.
+
+1. Make one more token on the site for the proxy.
+2. Put `BlysisConnect-Velocity-<version>.jar` in the proxy's `plugins/` and start it once.
+3. Write the address and the token in `plugins/blysisconnect/config.conf`, then run
+   `/blysisproxy reload`.
+
+The proxy answers `/credits`, `/link` and `/verify` itself, and a command the proxy registers
+never reaches the server behind it. In `plugins/blysisconnect/commands.conf`, turn off or rename
+whichever of the two you do not want answering. A player node is allowed on the proxy unless a
+permissions plugin takes it away; `blysis.admin` and `blysis.admin.credits` have to be granted.
+
 ## Commands
 
 | Command | What it does | Permission |

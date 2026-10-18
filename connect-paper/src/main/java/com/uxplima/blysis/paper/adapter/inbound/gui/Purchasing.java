@@ -13,11 +13,11 @@ import org.bukkit.entity.Player;
 import net.kyori.adventure.text.Component;
 
 import com.uxplima.blysis.domain.PlayerRef;
+import com.uxplima.blysis.domain.account.Amounts;
 import com.uxplima.blysis.domain.account.Catalog;
 import com.uxplima.blysis.domain.account.Profile;
 import com.uxplima.blysis.domain.account.Purchase;
 import com.uxplima.blysis.paper.adapter.inbound.Replies;
-import com.uxplima.blysis.paper.adapter.inbound.command.Amounts;
 import com.uxplima.blysis.paper.application.message.Keys;
 import com.uxplima.uxmlib.gui.input.TextInput;
 import com.uxplima.uxmlib.menu.binding.MenuBindings;

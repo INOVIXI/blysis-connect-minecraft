@@ -93,6 +93,7 @@ public final class SiteConnection implements AutoCloseable {
         this.settings = Objects.requireNonNull(settings, "settings");
         Objects.requireNonNull(current, "current");
         Objects.requireNonNull(platform, "platform");
+        loadTheJournalDriver();
         this.database = Database.builder()
                 .sqlite(platform.dataFolder().resolve("journal.db"))
                 .poolName("BlysisConnect-journal")
@@ -135,6 +136,20 @@ public final class SiteConnection implements AutoCloseable {
                 lanes.every(SHELF_PERIOD, catalog::refresh),
                 lanes.every(BOARD_PERIOD, boards::refresh));
         loop.start();
+    }
+
+    /**
+     * Registers the SQLite driver this jar carries. Paper finds it through the service loader; Velocity gives a
+     * plugin its own class loader, which the JDBC driver manager never searches, so the journal failed with "no
+     * suitable driver" on the first proxy it ran on. Loading the class registers it, and the pool asks from a
+     * class of this jar, which the manager accepts.
+     */
+    private static void loadTheJournalDriver() {
+        try {
+            Class.forName("org.sqlite.JDBC", true, SiteConnection.class.getClassLoader());
+        } catch (ClassNotFoundException missing) {
+            throw new IllegalStateException("the SQLite driver is not in this jar", missing);
+        }
     }
 
     private static HttpSite.Connection connectionOf(ConnectSettings settings, Platform platform) {

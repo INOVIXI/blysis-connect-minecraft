@@ -1,4 +1,4 @@
-package com.uxplima.blysis.paper.adapter.inbound.command;
+package com.uxplima.blysis.domain.account;
 
 import java.math.BigDecimal;
 import java.util.Optional;

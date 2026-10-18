@@ -8,10 +8,10 @@ import org.bukkit.entity.Player;
 
 import com.uxplima.blysis.application.Answer;
 import com.uxplima.blysis.domain.PlayerRef;
+import com.uxplima.blysis.domain.account.Amounts;
 import com.uxplima.blysis.domain.account.ChestItem;
 import com.uxplima.blysis.domain.account.SentGift;
 import com.uxplima.blysis.paper.adapter.inbound.Replies;
-import com.uxplima.blysis.paper.adapter.inbound.command.Amounts;
 import com.uxplima.blysis.paper.application.message.Keys;
 import com.uxplima.uxmlib.menu.binding.MenuBindings;
 import com.uxplima.uxmlib.menu.runtime.MenuActionContext;

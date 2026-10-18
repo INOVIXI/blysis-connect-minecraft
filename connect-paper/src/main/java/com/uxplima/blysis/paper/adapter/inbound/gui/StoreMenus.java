@@ -7,9 +7,9 @@ import java.util.stream.Collectors;
 import org.bukkit.entity.Player;
 
 import com.uxplima.blysis.application.CatalogCache;
+import com.uxplima.blysis.domain.account.Amounts;
 import com.uxplima.blysis.domain.account.Catalog;
 import com.uxplima.blysis.paper.adapter.inbound.Replies;
-import com.uxplima.blysis.paper.adapter.inbound.command.Amounts;
 import com.uxplima.blysis.paper.application.message.Keys;
 import com.uxplima.uxmlib.menu.binding.MenuBindings;
 import com.uxplima.uxmlib.menu.runtime.MenuActionContext;

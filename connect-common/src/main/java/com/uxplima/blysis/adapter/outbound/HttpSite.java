@@ -212,6 +212,11 @@ public final class HttpSite implements Site {
         return Optional.of(answerOf(response.statusCode(), response.body()));
     }
 
+    /** This process's instance id, which every call after hello carries. */
+    public String instance() {
+        return connection.instance();
+    }
+
     /** The request timeout the operator set, for a caller of {@link #call}. */
     public Duration requestTimeout() {
         return connection.requestTimeout();

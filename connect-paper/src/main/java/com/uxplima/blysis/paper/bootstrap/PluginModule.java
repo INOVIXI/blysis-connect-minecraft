@@ -11,16 +11,26 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.uxplima.blysis.paper.adapter.inbound.Redeeming;
+import com.uxplima.blysis.paper.adapter.inbound.Replies;
 import com.uxplima.blysis.paper.adapter.inbound.command.AdminCommand;
+import com.uxplima.blysis.paper.adapter.inbound.command.CreditsCommand;
 import com.uxplima.blysis.paper.adapter.inbound.command.LanguageSuggestions;
+import com.uxplima.blysis.paper.adapter.inbound.command.LinkCommand;
+import com.uxplima.blysis.paper.adapter.inbound.command.VerifyCommand;
+import com.uxplima.blysis.paper.adapter.inbound.command.VoucherCommand;
 import com.uxplima.blysis.paper.adapter.inbound.listener.LanguageListener;
 import com.uxplima.blysis.paper.adapter.inbound.listener.PresenceListener;
+import com.uxplima.blysis.paper.adapter.inbound.listener.VoucherListener;
 import com.uxplima.blysis.paper.adapter.outbound.OnlinePlayers;
 import com.uxplima.blysis.paper.adapter.outbound.PluginHealth;
 import com.uxplima.blysis.paper.adapter.outbound.PluginSettings;
+import com.uxplima.blysis.paper.adapter.outbound.VoucherItems;
 import com.uxplima.blysis.paper.application.message.Keys;
 import com.uxplima.uxmlib.command.annotation.AnnotatedCommands;
 import com.uxplima.uxmlib.command.annotation.CommandMessages;
@@ -136,7 +146,15 @@ final class PluginModule {
         // once more at shutdown, so a busy server never touches the disk on the thread that draws a message.
         this.saveTask = scheduler.asyncTimer(SAVE_PERIOD, SAVE_PERIOD, handle -> saveChoices());
 
-        registerCommands(scheduler, messages, choices);
+        Replies replies = new Replies(messages, scheduler, connection::session);
+        VoucherItems vouchers = new VoucherItems(
+                new NamespacedKey(plugin, "voucher"),
+                messages,
+                () -> materialOr(settings.current().voucherMaterial()));
+        Redeeming redeeming = new Redeeming(replies, messages, vouchers);
+        plugin.getServer().getPluginManager().registerEvents(new VoucherListener(redeeming), plugin);
+
+        registerCommands(scheduler, messages, choices, replies, vouchers, redeeming);
         connection.start();
     }
 
@@ -193,7 +211,19 @@ final class PluginModule {
         }
     }
 
-    private void registerCommands(Scheduler scheduler, Messages messages, LanguageChoices choices) {
+    /** The voucher's material, or paper when the file names one this server does not know as an item. */
+    private static Material materialOr(String name) {
+        Material found = Material.matchMaterial(name);
+        return found == null || !found.isItem() || found.isAir() ? Material.PAPER : found;
+    }
+
+    private void registerCommands(
+            Scheduler scheduler,
+            Messages messages,
+            LanguageChoices choices,
+            Replies replies,
+            VoucherItems vouchers,
+            Redeeming redeeming) {
         // commands.conf names every command. @FromConfig carries only a key, and this replacer
         // rewrites it into the @Command the DSL expects. A handler must never also declare
         // @Command: uxmLib keeps a declared annotation over a produced one, so the file would be
@@ -205,6 +235,19 @@ final class PluginModule {
                 .replacer(FromConfig.class, commands.replacer())
                 .suggestions(LanguageSuggestions.KEY, new LanguageSuggestions(choices));
 
+        if (commands.isEnabled(CreditsCommand.KEY, "credits")) {
+            AnnotatedCommands.register(plugin, new CreditsCommand(replies, messages), resolvers, scheduler);
+        }
+        if (commands.isEnabled(LinkCommand.KEY, "link")) {
+            AnnotatedCommands.register(plugin, new LinkCommand(replies, messages), resolvers, scheduler);
+        }
+        if (commands.isEnabled(VerifyCommand.KEY, "verify")) {
+            AnnotatedCommands.register(plugin, new VerifyCommand(replies, messages), resolvers, scheduler);
+        }
+        if (commands.isEnabled(VoucherCommand.KEY, "voucher")) {
+            AnnotatedCommands.register(
+                    plugin, new VoucherCommand(replies, messages, vouchers, redeeming), resolvers, scheduler);
+        }
         if (commands.isEnabled(AdminCommand.KEY, "blysis")) {
             AnnotatedCommands.register(
                     plugin,

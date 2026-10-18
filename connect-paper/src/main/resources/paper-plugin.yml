@@ -23,6 +23,24 @@ permissions:
   blysis.language:
     description: Choose the language you read this plugin in
     default: true
+  blysis.credits:
+    description: Read your credits on the site
+    default: true
+  blysis.credits.send:
+    description: Send credits to another member
+    default: true
+  blysis.credits.top:
+    description: Read the credit rankings
+    default: true
+  blysis.link:
+    description: Link this account to the site
+    default: true
+  blysis.voucher.create:
+    description: Turn your own credits into a voucher
+    default: true
+  blysis.voucher.redeem:
+    description: Redeem a voucher
+    default: true
 
   # What an operator does. Off unless the server grants it, and admin.* grants the family
   # in one line.
@@ -34,6 +52,12 @@ permissions:
     default: op
   blysis.admin.version:
     description: Read the version this server runs
+    default: op
+  blysis.admin.credits:
+    description: Add, remove, set and read another member's credits, where the site allows it
+    default: op
+  blysis.admin.voucher:
+    description: Mint a voucher nobody paid for, where the site allows it
     default: op
   blysis.admin.reload:
     description: Read the configuration again

@@ -41,11 +41,12 @@ public final class PluginSettings {
     }
 
     /** One immutable snapshot of the file. */
-    public record Snapshot(LanguageSettings language, ConnectSettings connect) {
+    public record Snapshot(LanguageSettings language, ConnectSettings connect, String voucherMaterial) {
 
         public Snapshot {
             Objects.requireNonNull(language, "language");
             Objects.requireNonNull(connect, "connect");
+            Objects.requireNonNull(voucherMaterial, "voucherMaterial");
         }
 
         /** The language every message falls back to. */
@@ -97,7 +98,8 @@ public final class PluginSettings {
 
     private Snapshot read() {
         HoconConfig config = HoconConfig.load(file);
-        return new Snapshot(language(config), ConnectSettingsFile.read(config));
+        return new Snapshot(
+                language(config), ConnectSettingsFile.read(config), config.getString("voucher.material", "PAPER"));
     }
 
     /**

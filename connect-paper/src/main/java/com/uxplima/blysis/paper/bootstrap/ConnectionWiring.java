@@ -13,10 +13,14 @@ import java.util.function.Supplier;
 
 import org.bukkit.Server;
 
+import com.uxplima.blysis.adapter.outbound.HttpAccounts;
 import com.uxplima.blysis.adapter.outbound.HttpSite;
 import com.uxplima.blysis.adapter.outbound.SqlJournal;
+import com.uxplima.blysis.application.CatalogCache;
 import com.uxplima.blysis.application.ConnectSettings;
 import com.uxplima.blysis.application.DeliverJobs;
+import com.uxplima.blysis.application.Once;
+import com.uxplima.blysis.application.Profiles;
 import com.uxplima.blysis.application.StayConnected;
 import com.uxplima.blysis.application.port.LinkWatcher;
 import com.uxplima.blysis.domain.Backoff;
@@ -27,6 +31,7 @@ import com.uxplima.blysis.domain.StatusPush;
 import com.uxplima.blysis.paper.adapter.outbound.OnlinePlayers;
 import com.uxplima.blysis.paper.adapter.outbound.PaperConsole;
 import com.uxplima.blysis.paper.adapter.outbound.SiteLink;
+import com.uxplima.blysis.paper.adapter.outbound.SiteSession;
 import com.uxplima.uxmlib.scheduler.Scheduler;
 import com.uxplima.uxmlib.scheduler.TaskHandle;
 import com.uxplima.uxmlib.storage.sql.Database;
@@ -44,6 +49,12 @@ final class ConnectionWiring {
 
     private static final Duration DEFAULT_STATUS_INTERVAL = Duration.ofSeconds(30);
     private static final Duration SWEEP_PERIOD = Duration.ofHours(6);
+
+    /** A backstop to the site's word that the catalogue changed. */
+    private static final Duration SHELF_PERIOD = Duration.ofMinutes(10);
+
+    /** How long a balance a menu shows may be before the site is asked again. */
+    private static final Duration PROFILE_FRESH = Duration.ofSeconds(30);
 
     private final Server server;
     private final Scheduler scheduler;
@@ -117,6 +128,12 @@ final class ConnectionWiring {
         }
     }
 
+    /** What a command or a menu talks to the site through. Empty when the server is not set up. */
+    Optional<SiteSession> session() {
+        Running now = running;
+        return now == null ? Optional.empty() : Optional.of(now.session);
+    }
+
     /** Where the connection stands, for an operator. Empty when the server is not set up. */
     Optional<LinkState> state() {
         Running now = running;
@@ -151,7 +168,9 @@ final class ConnectionWiring {
         private final HttpClient http;
         private final StayConnected connection;
         private final SiteLink link;
+        private final SiteSession session;
         private final TaskHandle sweep;
+        private final TaskHandle shelves;
 
         Running(ConnectSettings settings) {
             this.settings = settings;
@@ -178,10 +197,13 @@ final class ConnectionWiring {
                     site,
                     () -> current.get().blocklist(),
                     settings.commandTimeout());
+            String instance = site.instance();
+            HttpAccounts accounts = new HttpAccounts(site, instance);
+            CatalogCache catalog = new CatalogCache(accounts, Clock.systemUTC());
             this.connection = new StayConnected(
                     site,
                     delivery,
-                    new ConsoleWatcher(),
+                    new ConsoleWatcher(catalog),
                     new Backoff(
                             settings.retryFirst(),
                             settings.retryLongest(),
@@ -197,20 +219,39 @@ final class ConnectionWiring {
                             .hello()
                             .map(hello -> hello.settings().statusInterval())
                             .orElse(DEFAULT_STATUS_INTERVAL));
+            this.session = new SiteSession(
+                    accounts,
+                    new Profiles(accounts, Clock.systemUTC(), PROFILE_FRESH),
+                    catalog,
+                    new Once(Once.Sleeper.real()),
+                    connection::state);
             this.sweep = scheduler.asyncTimer(SWEEP_PERIOD, SWEEP_PERIOD, handle -> journal.sweep());
+            this.shelves = scheduler.asyncTimer(SHELF_PERIOD, SHELF_PERIOD, handle -> catalog.refresh());
             link.start();
         }
 
         void close() {
             link.stop();
             sweep.cancel();
+            shelves.cancel();
             http.shutdownNow();
             database.close();
         }
     }
 
-    /** Says each change of the connection once, in the console. */
+    /** Says each change of the connection once, in the console, and keeps the shelves current. */
     private final class ConsoleWatcher implements LinkWatcher {
+
+        private final CatalogCache catalog;
+
+        ConsoleWatcher(CatalogCache catalog) {
+            this.catalog = catalog;
+        }
+
+        @Override
+        public void catalogChanged(String version) {
+            catalog.refresh();
+        }
 
         @Override
         public void stateChanged(LinkState state, String detail) {
@@ -229,6 +270,7 @@ final class ConnectionWiring {
 
         @Override
         public void greeted(Hello hello) {
+            catalog.refresh();
             logger.info("This is {} on {} ({}).", hello.serverName(), hello.siteName(), hello.siteUrl());
             String previous = hello.takeoverOf();
             if (previous != null) {

@@ -1,6 +1,7 @@
 package com.uxplima.blysis.paper.adapter.outbound;
 
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
@@ -62,6 +63,18 @@ public final class PluginHealth {
                     ? HealthResult.fail("no window was read: the store cannot open")
                     : HealthResult.ok(count + " read");
         });
+    }
+
+    /**
+     * Whether PlaceholderAPI took our placeholders. A warning and not a failure: everything else works without
+     * it, and only our values in somebody else's scoreboard read as nothing.
+     */
+    public static HealthCheck placeholders(BooleanSupplier published) {
+        return check(
+                "placeholders",
+                () -> published.getAsBoolean()
+                        ? HealthResult.ok("published")
+                        : HealthResult.warn("PlaceholderAPI is not on this server, so %blysis_...% publishes nothing"));
     }
 
     private static HealthCheck check(String name, Supplier<HealthResult> answer) {

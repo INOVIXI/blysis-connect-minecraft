@@ -33,6 +33,9 @@ final class FakeAccounts implements Accounts {
     final Deque<Supplier<Purchase>> purchases = new ArrayDeque<>();
     final List<@Nullable String> catalogVersions = new ArrayList<>();
     final List<String> purchaseKeys = new ArrayList<>();
+    final Deque<Supplier<List<TopEntry>>> tops = new ArrayDeque<>();
+    final Deque<Supplier<Goal>> goals = new ArrayDeque<>();
+    final List<String> topsAsked = new ArrayList<>();
 
     private static <T> T next(Deque<Supplier<T>> queue, String call) {
         Supplier<T> answer = queue.poll();
@@ -118,12 +121,13 @@ final class FakeAccounts implements Accounts {
 
     @Override
     public List<TopEntry> top(String kind, String period, int limit) {
-        throw new AssertionError("top");
+        topsAsked.add(kind + "/" + period + "/" + limit);
+        return next(tops, "top");
     }
 
     @Override
     public Goal goal() {
-        throw new AssertionError("goal");
+        return next(goals, "goal");
     }
 
     @Override

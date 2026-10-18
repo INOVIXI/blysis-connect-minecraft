@@ -16,6 +16,7 @@ import org.bukkit.Server;
 import com.uxplima.blysis.adapter.outbound.HttpAccounts;
 import com.uxplima.blysis.adapter.outbound.HttpSite;
 import com.uxplima.blysis.adapter.outbound.SqlJournal;
+import com.uxplima.blysis.application.Boards;
 import com.uxplima.blysis.application.CatalogCache;
 import com.uxplima.blysis.application.ConnectSettings;
 import com.uxplima.blysis.application.DeliverJobs;
@@ -53,6 +54,9 @@ final class ConnectionWiring {
 
     /** A backstop to the site's word that the catalogue changed. */
     private static final Duration SHELF_PERIOD = Duration.ofMinutes(10);
+
+    /** How often a ranking a scoreboard reads is asked again. */
+    private static final Duration BOARD_PERIOD = Duration.ofMinutes(1);
 
     /** How long a balance a menu shows may be before the site is asked again. */
     private static final Duration PROFILE_FRESH = Duration.ofSeconds(30);
@@ -177,6 +181,7 @@ final class ConnectionWiring {
         private final SiteSession session;
         private final TaskHandle sweep;
         private final TaskHandle shelves;
+        private final TaskHandle rankings;
 
         Running(ConnectSettings settings) {
             this.settings = settings;
@@ -225,14 +230,17 @@ final class ConnectionWiring {
                             .hello()
                             .map(hello -> hello.settings().statusInterval())
                             .orElse(DEFAULT_STATUS_INTERVAL));
+            Boards boards = new Boards(accounts);
             this.session = new SiteSession(
                     accounts,
                     new Profiles(accounts, Clock.systemUTC(), PROFILE_FRESH),
                     catalog,
+                    boards,
                     new Once(Once.Sleeper.real()),
                     connection::state);
             this.sweep = scheduler.asyncTimer(SWEEP_PERIOD, SWEEP_PERIOD, handle -> journal.sweep());
             this.shelves = scheduler.asyncTimer(SHELF_PERIOD, SHELF_PERIOD, handle -> catalog.refresh());
+            this.rankings = scheduler.asyncTimer(BOARD_PERIOD, BOARD_PERIOD, handle -> boards.refresh());
             link.start();
         }
 
@@ -240,6 +248,7 @@ final class ConnectionWiring {
             link.stop();
             sweep.cancel();
             shelves.cancel();
+            rankings.cancel();
             http.shutdownNow();
             database.close();
         }

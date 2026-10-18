@@ -3,6 +3,7 @@ package com.uxplima.blysis.paper.adapter.outbound;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import com.uxplima.blysis.application.Boards;
 import com.uxplima.blysis.application.CatalogCache;
 import com.uxplima.blysis.application.Once;
 import com.uxplima.blysis.application.Profiles;
@@ -15,12 +16,18 @@ import com.uxplima.blysis.domain.LinkState;
  * changed the token hands every surface a new one.
  */
 public record SiteSession(
-        Accounts accounts, Profiles profiles, CatalogCache catalog, Once once, Supplier<LinkState> state) {
+        Accounts accounts,
+        Profiles profiles,
+        CatalogCache catalog,
+        Boards boards,
+        Once once,
+        Supplier<LinkState> state) {
 
     public SiteSession {
         Objects.requireNonNull(accounts, "accounts");
         Objects.requireNonNull(profiles, "profiles");
         Objects.requireNonNull(catalog, "catalog");
+        Objects.requireNonNull(boards, "boards");
         Objects.requireNonNull(once, "once");
         Objects.requireNonNull(state, "state");
     }

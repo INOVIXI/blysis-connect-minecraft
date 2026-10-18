@@ -35,6 +35,7 @@ import com.uxplima.blysis.paper.adapter.inbound.gui.Words;
 import com.uxplima.blysis.paper.adapter.inbound.listener.LanguageListener;
 import com.uxplima.blysis.paper.adapter.inbound.listener.PresenceListener;
 import com.uxplima.blysis.paper.adapter.inbound.listener.VoucherListener;
+import com.uxplima.blysis.paper.adapter.inbound.placeholder.BlysisPlaceholders;
 import com.uxplima.blysis.paper.adapter.outbound.OnlinePlayers;
 import com.uxplima.blysis.paper.adapter.outbound.PluginHealth;
 import com.uxplima.blysis.paper.adapter.outbound.PluginSettings;
@@ -53,6 +54,8 @@ import com.uxplima.uxmlib.content.Operands;
 import com.uxplima.uxmlib.gui.CatalogueWords;
 import com.uxplima.uxmlib.gui.anvil.AnvilInput;
 import com.uxplima.uxmlib.gui.input.TextInputInstaller;
+import com.uxplima.uxmlib.hook.placeholder.PlaceholderExpansions;
+import com.uxplima.uxmlib.hook.placeholder.PlaceholderRegistry;
 import com.uxplima.uxmlib.menu.MenuBasics;
 import com.uxplima.uxmlib.menu.Menus;
 import com.uxplima.uxmlib.menu.binding.MenuBindings;
@@ -118,6 +121,7 @@ final class PluginModule {
     private @Nullable AnvilInput anvil;
     private TextInputInstaller.@Nullable Installed typing;
     private @Nullable Windows windows;
+    private @Nullable Runnable unpublish;
 
     /** The window files and their rows when a file is unreadable. */
     private static final Map<String, Integer> WINDOWS = Map.of(
@@ -208,6 +212,15 @@ final class PluginModule {
         Redeeming redeeming = new Redeeming(replies, messages, vouchers);
         plugin.getServer().getPluginManager().registerEvents(new VoucherListener(redeeming), plugin);
 
+        // registered, not register: PlaceholderAPI keeps an expansion until somebody takes it away, and a
+        // reload would otherwise leave it answering out of the graph this enable replaced. The presence guard
+        // is inside, so a server without PlaceholderAPI gets nothing and no error.
+        this.unpublish = PlaceholderExpansions.registered(
+                        BlysisPlaceholders.IDENTIFIER,
+                        new PlaceholderRegistry().fallback(new BlysisPlaceholders(replies::session, scheduler)),
+                        "INOVIXI",
+                        plugin.getPluginMeta().getVersion())
+                .orElse(null);
         Surfaces surfaces = registerSurfaces(scheduler, messages, replies);
         registerCommands(scheduler, messages, choices, replies, vouchers, redeeming, surfaces);
         connection.start();
@@ -228,7 +241,8 @@ final class PluginModule {
         return java.util.List.of(
                 PluginHealth.site(wired::state),
                 PluginHealth.journal(wired::unreported),
-                PluginHealth.windows(() -> open == null ? 0 : open.specs().size()));
+                PluginHealth.windows(() -> open == null ? 0 : open.specs().size()),
+                PluginHealth.placeholders(() -> unpublish != null));
     }
 
     /**
@@ -240,6 +254,10 @@ final class PluginModule {
      */
     void shutdown() {
         Operands.forgetEverything();
+        if (unpublish != null) {
+            unpublish.run();
+            unpublish = null;
+        }
         if (menuClicks != null) {
             menuClicks.uninstall();
             menuClicks = null;

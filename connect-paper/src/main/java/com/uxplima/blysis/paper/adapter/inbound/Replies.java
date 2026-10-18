@@ -12,8 +12,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.uxplima.blysis.application.Answer;
+import com.uxplima.blysis.application.SiteSession;
 import com.uxplima.blysis.domain.PlayerRef;
-import com.uxplima.blysis.paper.adapter.outbound.SiteSession;
 import com.uxplima.blysis.paper.application.message.Keys;
 import com.uxplima.uxmlib.scheduler.Scheduler;
 import com.uxplima.uxmlib.text.Text;

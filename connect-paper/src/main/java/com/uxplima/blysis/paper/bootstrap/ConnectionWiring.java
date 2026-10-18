@@ -1,65 +1,33 @@
 package com.uxplima.blysis.paper.bootstrap;
 
-import java.net.http.HttpClient;
 import java.nio.file.Path;
-import java.time.Clock;
-import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
 import org.bukkit.Server;
 
-import com.uxplima.blysis.adapter.outbound.HttpAccounts;
-import com.uxplima.blysis.adapter.outbound.HttpSite;
-import com.uxplima.blysis.adapter.outbound.SqlJournal;
-import com.uxplima.blysis.application.Boards;
-import com.uxplima.blysis.application.CatalogCache;
+import com.uxplima.blysis.adapter.outbound.ConsoleWatcher;
+import com.uxplima.blysis.adapter.outbound.SiteConnection;
 import com.uxplima.blysis.application.ConnectSettings;
-import com.uxplima.blysis.application.DeliverJobs;
-import com.uxplima.blysis.application.Once;
-import com.uxplima.blysis.application.Profiles;
-import com.uxplima.blysis.application.StayConnected;
+import com.uxplima.blysis.application.SiteSession;
 import com.uxplima.blysis.application.port.LinkWatcher;
-import com.uxplima.blysis.domain.Backoff;
-import com.uxplima.blysis.domain.Hello;
 import com.uxplima.blysis.domain.LinkState;
 import com.uxplima.blysis.domain.PlayerRef;
-import com.uxplima.blysis.domain.SiteEvent;
 import com.uxplima.blysis.domain.StatusPush;
 import com.uxplima.blysis.paper.adapter.outbound.OnlinePlayers;
 import com.uxplima.blysis.paper.adapter.outbound.PaperConsole;
-import com.uxplima.blysis.paper.adapter.outbound.SiteLink;
-import com.uxplima.blysis.paper.adapter.outbound.SiteSession;
+import com.uxplima.blysis.paper.adapter.outbound.PaperLanes;
 import com.uxplima.uxmlib.scheduler.Scheduler;
-import com.uxplima.uxmlib.scheduler.TaskHandle;
-import com.uxplima.uxmlib.storage.sql.Database;
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 /**
- * The connection to the site, built from one snapshot of the settings and torn down whole. A reload that
- * changed the address or the token builds a new one; any other reload leaves the running one alone.
+ * The connection's lifecycle on Paper and Folia: built from one snapshot of the settings, and built again when
+ * a reload changed the address or the token. Any other reload leaves the running one alone.
  */
 final class ConnectionWiring {
-
-    /** The client name the site shows beside this server. */
-    static final String CLIENT = "blysis-connect-minecraft";
-
-    private static final Duration DEFAULT_STATUS_INTERVAL = Duration.ofSeconds(30);
-    private static final Duration SWEEP_PERIOD = Duration.ofHours(6);
-
-    /** A backstop to the site's word that the catalogue changed. */
-    private static final Duration SHELF_PERIOD = Duration.ofMinutes(10);
-
-    /** How often a ranking a scoreboard reads is asked again. */
-    private static final Duration BOARD_PERIOD = Duration.ofMinutes(1);
-
-    /** How long a balance a menu shows may be before the site is asked again. */
-    private static final Duration PROFILE_FRESH = Duration.ofSeconds(30);
 
     private final Server server;
     private final Scheduler scheduler;
@@ -72,7 +40,7 @@ final class ConnectionWiring {
     // What players and staff are told: the announcements and the one line about a site that went away.
     private final LinkWatcher players;
 
-    private @Nullable Running running;
+    private volatile @Nullable SiteConnection running;
 
     ConnectionWiring(
             Server server,
@@ -106,16 +74,30 @@ final class ConnectionWiring {
                         "site.address is plain http to another machine ({}). The token crosses the network in clear:"
                                 + " use https.",
                         address));
-        running = new Running(connect);
+        running = new SiteConnection(connect, current, platform());
+    }
+
+    private SiteConnection.Platform platform() {
+        return new SiteConnection.Platform(
+                dataFolder,
+                version,
+                server.getName(),
+                server.getVersion(),
+                "server",
+                new PaperConsole(server, scheduler),
+                online,
+                new PaperLanes(scheduler),
+                this::status,
+                new ConsoleWatcher(new SlfConsole(logger), players));
     }
 
     /** Builds the connection again when the reload changed where or who this server is. */
     synchronized void reloaded() {
-        Running now = running;
+        SiteConnection now = running;
         ConnectSettings connect = current.get();
         if (now != null
-                && now.settings.address().equals(connect.address())
-                && now.settings.token().equals(connect.token())) {
+                && now.settings().address().equals(connect.address())
+                && now.settings().token().equals(connect.token())) {
             return;
         }
         stop();
@@ -123,7 +105,7 @@ final class ConnectionWiring {
     }
 
     synchronized void stop() {
-        Running now = running;
+        SiteConnection now = running;
         running = null;
         if (now != null) {
             now.close();
@@ -132,28 +114,28 @@ final class ConnectionWiring {
 
     /** Pushes who is online soon, when connected. */
     void statusSoon() {
-        Running now = running;
+        SiteConnection now = running;
         if (now != null) {
-            now.link.statusSoon();
+            now.statusSoon();
         }
     }
 
     /** What a command or a menu talks to the site through. Empty when the server is not set up. */
     Optional<SiteSession> session() {
-        Running now = running;
-        return now == null ? Optional.empty() : Optional.of(now.session);
+        SiteConnection now = running;
+        return now == null ? Optional.empty() : Optional.of(now.session());
     }
 
     /** Where the connection stands, for an operator. Empty when the server is not set up. */
     Optional<LinkState> state() {
-        Running now = running;
-        return now == null ? Optional.empty() : Optional.of(now.connection.state());
+        SiteConnection now = running;
+        return now == null ? Optional.empty() : Optional.of(now.state());
     }
 
     /** How many outcomes wait for the site, for an operator. Empty when the server is not set up. */
     Optional<Integer> unreported() {
-        Running now = running;
-        return now == null ? Optional.empty() : Optional.of(now.journal.unreportedCount());
+        SiteConnection now = running;
+        return now == null ? Optional.empty() : Optional.of(now.unreported());
     }
 
     private StatusPush status() {
@@ -169,135 +151,22 @@ final class ConnectionWiring {
         return new StatusPush(players.size(), server.getMaxPlayers(), players, server.getMinecraftVersion(), tps, mspt);
     }
 
-    /** One connection and everything it opened. */
-    private final class Running {
+    /** The server's console, at the three levels the connection speaks in. */
+    private record SlfConsole(Logger logger) implements ConsoleWatcher.Console {
 
-        private final ConnectSettings settings;
-        private final Database database;
-        private final SqlJournal journal;
-        private final HttpClient http;
-        private final StayConnected connection;
-        private final SiteLink link;
-        private final SiteSession session;
-        private final TaskHandle sweep;
-        private final TaskHandle shelves;
-        private final TaskHandle rankings;
-
-        Running(ConnectSettings settings) {
-            this.settings = settings;
-            this.database = Database.builder()
-                    .sqlite(dataFolder.resolve("journal.db"))
-                    .poolName("BlysisConnect-journal")
-                    .build();
-            this.journal = SqlJournal.open(database, Clock.systemUTC());
-            this.http = HttpSite.client(settings.connectTimeout(), settings.address());
-            HttpSite site = new HttpSite(
-                    http,
-                    new HttpSite.Connection(
-                            settings.address(),
-                            settings.token(),
-                            UUID.randomUUID().toString(),
-                            CLIENT,
-                            version,
-                            "minecraft",
-                            settings.requestTimeout()));
-            DeliverJobs delivery = new DeliverJobs(
-                    journal,
-                    new PaperConsole(server, scheduler),
-                    online,
-                    site,
-                    () -> current.get().blocklist(),
-                    settings.commandTimeout());
-            String instance = site.instance();
-            HttpAccounts accounts = new HttpAccounts(site, instance);
-            CatalogCache catalog = new CatalogCache(accounts, Clock.systemUTC());
-            this.connection = new StayConnected(
-                    site,
-                    delivery,
-                    new ConsoleWatcher(catalog),
-                    new Backoff(
-                            settings.retryFirst(),
-                            settings.retryLongest(),
-                            () -> ThreadLocalRandom.current().nextDouble()),
-                    server.getName(),
-                    server.getVersion(),
-                    "server");
-            this.link = new SiteLink(
-                    connection,
-                    scheduler,
-                    ConnectionWiring.this::status,
-                    () -> connection
-                            .hello()
-                            .map(hello -> hello.settings().statusInterval())
-                            .orElse(DEFAULT_STATUS_INTERVAL));
-            Boards boards = new Boards(accounts);
-            this.session = new SiteSession(
-                    accounts,
-                    new Profiles(accounts, Clock.systemUTC(), PROFILE_FRESH),
-                    catalog,
-                    boards,
-                    new Once(Once.Sleeper.real()),
-                    connection::state);
-            this.sweep = scheduler.asyncTimer(SWEEP_PERIOD, SWEEP_PERIOD, handle -> journal.sweep());
-            this.shelves = scheduler.asyncTimer(SHELF_PERIOD, SHELF_PERIOD, handle -> catalog.refresh());
-            this.rankings = scheduler.asyncTimer(BOARD_PERIOD, BOARD_PERIOD, handle -> boards.refresh());
-            link.start();
-        }
-
-        void close() {
-            link.stop();
-            sweep.cancel();
-            shelves.cancel();
-            rankings.cancel();
-            http.shutdownNow();
-            database.close();
-        }
-    }
-
-    /** Says each change of the connection once, in the console, and keeps the shelves current. */
-    private final class ConsoleWatcher implements LinkWatcher {
-
-        private final CatalogCache catalog;
-
-        ConsoleWatcher(CatalogCache catalog) {
-            this.catalog = catalog;
+        @Override
+        public void info(String line) {
+            logger.info(line);
         }
 
         @Override
-        public void catalogChanged(String version) {
-            catalog.refresh();
+        public void warn(String line) {
+            logger.warn(line);
         }
 
         @Override
-        public void events(List<SiteEvent> events) {
-            players.events(events);
-        }
-
-        @Override
-        public void stateChanged(LinkState state, String detail) {
-            players.stateChanged(state, detail);
-            switch (state) {
-                case CONNECTING -> logger.info("Connecting to the site.");
-                case CONNECTED -> logger.info("Connected to the site.");
-                case UNREACHABLE ->
-                    logger.warn(
-                            "The site does not answer ({}). Deliveries wait there, and purchases are refused until it"
-                                    + " answers again.",
-                            detail);
-                case STOPPED ->
-                    logger.error("The site refused this server and it stops calling until /blysis reload: {}", detail);
-            }
-        }
-
-        @Override
-        public void greeted(Hello hello) {
-            catalog.refresh();
-            logger.info("This is {} on {} ({}).", hello.serverName(), hello.siteName(), hello.siteUrl());
-            String previous = hello.takeoverOf();
-            if (previous != null) {
-                logger.warn("Another process used this token in the last minute and a half. After a restart that"
-                        + " was this server; if not, two servers share one token and only the newest is served.");
-            }
+        public void error(String line) {
+            logger.error(line);
         }
     }
 }

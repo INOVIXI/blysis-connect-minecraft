@@ -1,12 +1,8 @@
-package com.uxplima.blysis.paper.adapter.outbound;
+package com.uxplima.blysis.application;
 
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import com.uxplima.blysis.application.Boards;
-import com.uxplima.blysis.application.CatalogCache;
-import com.uxplima.blysis.application.Once;
-import com.uxplima.blysis.application.Profiles;
 import com.uxplima.blysis.application.port.Accounts;
 import com.uxplima.blysis.domain.LinkState;
 

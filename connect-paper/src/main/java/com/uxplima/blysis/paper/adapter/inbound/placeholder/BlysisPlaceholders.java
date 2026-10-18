@@ -14,12 +14,12 @@ import java.util.function.Supplier;
 import org.bukkit.OfflinePlayer;
 
 import com.uxplima.blysis.application.Boards;
+import com.uxplima.blysis.application.SiteSession;
 import com.uxplima.blysis.domain.PlayerRef;
 import com.uxplima.blysis.domain.account.Goal;
 import com.uxplima.blysis.domain.account.Profile;
 import com.uxplima.blysis.domain.account.TopEntry;
 import com.uxplima.blysis.paper.adapter.inbound.command.Amounts;
-import com.uxplima.blysis.paper.adapter.outbound.SiteSession;
 import com.uxplima.uxmlib.hook.placeholder.PlaceholderProvider;
 import com.uxplima.uxmlib.scheduler.Scheduler;
 import org.jspecify.annotations.Nullable;

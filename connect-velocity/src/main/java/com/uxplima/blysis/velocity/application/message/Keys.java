@@ -38,6 +38,9 @@ public enum Keys implements MessageKey {
     REFUSED_NOT_IN_GAME("refused.not_in_game", "<etag:'ERROR'> <body>That is not for sale in game."),
     REFUSED_OUT_OF_STOCK("refused.out_of_stock", "<etag:'ERROR'> <body>That has sold out."),
     REFUSED_QUANTITY_INVALID("refused.quantity_invalid", "<etag:'ERROR'> <body>You cannot buy that many of it."),
+    REFUSED_LIMIT_REACHED(
+            "refused.limit_reached",
+            "<etag:'ERROR'> <body>One account may own only so many of that, and whoever it is for has reached it."),
     REFUSED_FIELD_INVALID(
             "refused.field_invalid", "<etag:'ERROR'> <body>The answer to <value><field><body> is missing or wrong."),
     REFUSED_NOT_GIFTABLE("refused.not_giftable", "<etag:'ERROR'> <body>That cannot be given to someone else."),
@@ -56,7 +59,9 @@ public enum Keys implements MessageKey {
             "refused.needs_player_name",
             "<etag:'ERROR'> <body>That item needs a player name. Claim it from the site's chest."),
     REFUSED_UNAVAILABLE(
-            "refused.unavailable", "<etag:'ERROR'> <body>The site cannot do that right now. Try again later."),
+            "refused.unavailable",
+            "<etag:'ERROR'> <body>That cannot be bought by this account right now. The store page on the site says"
+                    + " why."),
     CREDITS_BALANCE("credits.balance", "<tag:'BLYSIS'> <body>You have <value><balance><body> credits."),
     CREDITS_BALANCE_REMEMBERED(
             "credits.balance-remembered",

@@ -3,6 +3,8 @@ package com.uxplima.blysis.application.port;
 import java.io.Serial;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * The site understood the call and said no, with a stable code: a wrong token, a switched-off server, a
  * superseded process, a refused purchase. Unlike {@link SiteUnavailable}, trying again changes nothing.
@@ -14,11 +16,22 @@ public final class SiteRefused extends RuntimeException {
 
     private final int status;
     private final String code;
+    private final @Nullable String field;
 
     public SiteRefused(int status, String code, String message) {
+        this(status, code, message, null);
+    }
+
+    public SiteRefused(int status, String code, String message, @Nullable String field) {
         super(message);
         this.status = status;
         this.code = Objects.requireNonNull(code, "code");
+        this.field = field;
+    }
+
+    /** The question of a product the answers did not satisfy, for {@code field_invalid}. */
+    public @Nullable String field() {
+        return field;
     }
 
     /** The HTTP status the site answered with. */

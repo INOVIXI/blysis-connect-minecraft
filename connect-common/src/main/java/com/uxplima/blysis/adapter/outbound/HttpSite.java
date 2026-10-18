@@ -265,7 +265,7 @@ public final class HttpSite implements Site {
                 status == 401 || status == 403 || status == 404 || status == 409 || status == 422 || status == 426;
         if (parsed != null && code != null && meaningful) {
             String message = text(parsed, "error");
-            throw new SiteRefused(status, code, message == null ? code : message);
+            throw new SiteRefused(status, code, message == null ? code : message, text(parsed, "field"));
         }
         throw new SiteUnavailable("the site answered " + status + (code == null ? "" : " " + code));
     }

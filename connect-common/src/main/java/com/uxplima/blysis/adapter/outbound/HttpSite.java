@@ -13,6 +13,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.gson.JsonArray;
@@ -191,6 +192,32 @@ public final class HttpSite implements Site {
     }
 
     /**
+     * A read that answers nothing new when the site's copy is the one this side holds: the request carries
+     * {@code If-None-Match}, and a 304 answers empty.
+     */
+    public Optional<JsonObject> getIfChanged(String path, @Nullable String version) {
+        HttpRequest.Builder request = HttpRequest.newBuilder(URI.create(Protocol.endpoint(connection.site(), path)))
+                .timeout(connection.requestTimeout())
+                .header("Authorization", "Bearer " + connection.token())
+                .header(Protocol.HEADER, Integer.toString(Protocol.VERSION))
+                .header("Accept", "application/json")
+                .GET();
+        if (version != null && !version.isEmpty()) {
+            request.header("If-None-Match", "\"" + version + "\"");
+        }
+        HttpResponse<String> response = send(request.build());
+        if (response.statusCode() == 304) {
+            return Optional.empty();
+        }
+        return Optional.of(answerOf(response.statusCode(), response.body()));
+    }
+
+    /** The request timeout the operator set, for a caller of {@link #call}. */
+    public Duration requestTimeout() {
+        return connection.requestTimeout();
+    }
+
+    /**
      * Any call this page names, for the player-facing endpoints: the answer's body, or a {@link SiteRefused}
      * carrying the site's code.
      */
@@ -206,16 +233,19 @@ public final class HttpSite implements Site {
             request.header("Content-Type", "application/json")
                     .method(method, HttpRequest.BodyPublishers.ofString(body.toString(), StandardCharsets.UTF_8));
         }
-        HttpResponse<String> response;
+        HttpResponse<String> response = send(request.build());
+        return answerOf(response.statusCode(), response.body());
+    }
+
+    private HttpResponse<String> send(HttpRequest request) {
         try {
-            response = client.send(request.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            return client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
         } catch (IOException unreachable) {
             throw new SiteUnavailable(reasonOf(unreachable), unreachable);
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();
             throw new SiteUnavailable("the call was interrupted", interrupted);
         }
-        return answerOf(response.statusCode(), response.body());
     }
 
     /** Turns a status and a body into the answer, a refusal, or the site being away. */

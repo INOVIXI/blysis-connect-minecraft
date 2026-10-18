@@ -16,7 +16,9 @@ concurrency:
 
 jobs:
   check:
-    runs-on: [self-hosted, uxplima]
+    # GitHub's own runner: this repository lives under INOVIXI, where the UXPLIMA runner is not
+    # registered, and uxmLib resolves from the public repository.
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 

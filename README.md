@@ -69,7 +69,7 @@ permissions plugin takes it away; `blysis.admin` and `blysis.admin.credits` have
 | `/chest`, `/chest sent` | What waits for you; the gifts you sent | `blysis.chest` |
 | `/credits` | Your balance | `blysis.credits` |
 | `/credits send <member> <amount>` | Send credits | `blysis.credits.send` |
-| `/credits top [balance\|topups] [day\|month\|year\|all]` | Rankings | `blysis.credits.top` |
+| `/credits top [balance\|topups\|latest] [day\|month\|year\|all]` | Rankings | `blysis.credits.top` |
 | `/credits add\|remove\|set\|see <member> [amount]` | Staff | `blysis.admin.credits` |
 | `/voucher create <amount>`, `/voucher redeem` | Vouchers | `blysis.voucher.create`, `blysis.voucher.redeem` |
 | `/voucher give <player> <amount>` | A voucher nobody paid for | `blysis.admin.voucher` |

@@ -81,12 +81,16 @@ public final class CreditsCommand implements SimpleCommand {
             return;
         }
         PlayerRef ref = ProxyPlayers.refOf(player);
-        replies.ask(player, false, site -> site.profiles().ask(ref), profile -> {
-            if (!profile.linked()) {
+        // While the site does not answer, the last balance it gave, with a word that it is old.
+        replies.ask(player, false, site -> site.profiles().shown(ref), shown -> {
+            if (!shown.profile().linked()) {
                 messages.send(player, Keys.REFUSED_NOT_LINKED);
                 return;
             }
-            messages.send(player, Keys.CREDITS_BALANCE, Text.placeholder("balance", Amounts.shown(profile.balance())));
+            messages.send(
+                    player,
+                    shown.remembered() ? Keys.CREDITS_BALANCE_REMEMBERED : Keys.CREDITS_BALANCE,
+                    Text.placeholder("balance", Amounts.shown(shown.profile().balance())));
         });
     }
 

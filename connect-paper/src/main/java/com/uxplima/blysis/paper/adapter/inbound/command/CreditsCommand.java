@@ -12,6 +12,7 @@ import net.kyori.adventure.text.Component;
 
 import com.uxplima.blysis.application.Answer;
 import com.uxplima.blysis.application.Once;
+import com.uxplima.blysis.application.Profiles;
 import com.uxplima.blysis.domain.PlayerRef;
 import com.uxplima.blysis.domain.account.Amounts;
 import com.uxplima.blysis.domain.account.Profile;
@@ -55,7 +56,7 @@ public final class CreditsCommand {
     public void balance(Sender sender) {
         Player player = sender.player().orElseThrow();
         PlayerRef ref = Replies.refOf(player);
-        replies.ask(player, false, site -> site.profiles().ask(ref), profile -> sayBalance(player, profile));
+        replies.ask(player, false, site -> site.profiles().shown(ref), shown -> sayBalance(player, shown));
     }
 
     @FromConfig(value = "send", fallbackName = "send", description = "Send credits to another member")
@@ -147,12 +148,17 @@ public final class CreditsCommand {
                 balance -> sayStaff(asker, target, balance));
     }
 
-    private void sayBalance(Player player, Profile profile) {
+    /** The balance, or, while the site does not answer, the last one it gave and a word that it is old. */
+    private void sayBalance(Player player, Profiles.Shown shown) {
+        Profile profile = shown.profile();
         if (!profile.linked()) {
             messages.send(player, Keys.REFUSED_NOT_LINKED);
             return;
         }
-        messages.send(player, Keys.CREDITS_BALANCE, Text.placeholder("balance", Amounts.shown(profile.balance())));
+        messages.send(
+                player,
+                shown.remembered() ? Keys.CREDITS_BALANCE_REMEMBERED : Keys.CREDITS_BALANCE,
+                Text.placeholder("balance", Amounts.shown(profile.balance())));
     }
 
     private void sayStaff(CommandSender asker, String target, BigDecimal balance) {

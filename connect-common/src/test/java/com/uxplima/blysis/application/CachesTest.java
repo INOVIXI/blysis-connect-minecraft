@@ -77,6 +77,27 @@ final class CachesTest {
         assertThat(profiles.lastKnown(NOTCH)).map(Profile::balance).contains(new BigDecimal("150"));
     }
 
+    @Test
+    @DisplayName("a balance asked while the site is away is the last one it gave, marked as remembered")
+    void balanceShownFromMemoryWhileAway() {
+        Profiles profiles = new Profiles(site, Clock.systemUTC(), Duration.ZERO);
+        site.profiles.add(() -> LINKED);
+        site.profiles.add(() -> {
+            throw new SiteUnavailable("down");
+        });
+        site.profiles.add(() -> {
+            throw new SiteUnavailable("down");
+        });
+
+        Answer<Profiles.Shown> live = profiles.shown(NOTCH);
+        Answer<Profiles.Shown> remembered = profiles.shown(NOTCH);
+        Answer<Profiles.Shown> nobody = profiles.shown(new PlayerRef("v", "Steve"));
+
+        assertThat(live).isEqualTo(new Answer.Given<>(new Profiles.Shown(LINKED, false)));
+        assertThat(remembered).isEqualTo(new Answer.Given<>(new Profiles.Shown(LINKED, true)));
+        assertThat(nobody).isInstanceOf(Answer.Away.class);
+    }
+
     private static final class MutableClock extends Clock {
         Instant now = Instant.parse("2026-10-18T12:00:00Z");
 

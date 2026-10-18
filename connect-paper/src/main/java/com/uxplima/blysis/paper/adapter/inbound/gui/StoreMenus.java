@@ -86,7 +86,8 @@ public final class StoreMenus {
                             // The balance a purchase window shows is the one kept, so it is asked now, while nothing
                             // waits on it.
                             site.profiles().of(Replies.refOf(viewer));
-                            Shelf top = new Shelf(view.catalog(), null, view.stale());
+                            // Kept shelves are old as soon as the site stops answering, before any refresh fails.
+                            Shelf top = new Shelf(view.catalog(), null, view.stale() || !site.reachable());
                             replies.onPlayer(viewer, () -> openOn(viewer, top));
                         }),
                         () -> messages.send(viewer, Keys.NOT_CONNECTED));

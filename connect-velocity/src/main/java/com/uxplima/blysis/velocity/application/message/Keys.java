@@ -58,6 +58,10 @@ public enum Keys implements MessageKey {
     REFUSED_UNAVAILABLE(
             "refused.unavailable", "<etag:'ERROR'> <body>The site cannot do that right now. Try again later."),
     CREDITS_BALANCE("credits.balance", "<tag:'BLYSIS'> <body>You have <value><balance><body> credits."),
+    CREDITS_BALANCE_REMEMBERED(
+            "credits.balance-remembered",
+            "<tag:'BLYSIS'> <body>You had <value><balance><body> credits when the site last answered. It does not"
+                    + " answer now, so this may have changed."),
     CREDITS_SENT(
             "credits.sent",
             "<tag:'BLYSIS'> <body>You sent <value><amount><body> credits to <value><to><body>. You have <value><balance><body> left."),

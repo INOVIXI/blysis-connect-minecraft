@@ -52,6 +52,21 @@ public final class Profiles {
         return answer;
     }
 
+    /**
+     * A profile to show a player: the one the site gives now or, while it does not answer, the last one it gave,
+     * marked as remembered. Away only when nothing was ever known.
+     */
+    public Answer<Shown> shown(PlayerRef player) {
+        return switch (ask(player)) {
+            case Answer.Given<Profile> given -> new Answer.Given<>(new Shown(given.value(), false));
+            case Answer.Refused<Profile> refused -> new Answer.Refused<>(refused.code(), refused.field());
+            case Answer.Away<Profile> away ->
+                lastKnown(player)
+                        .<Answer<Shown>>map(last -> new Answer.Given<>(new Shown(last, true)))
+                        .orElseGet(() -> new Answer.Away<>(away.reason()));
+        };
+    }
+
     /** What was last known, however old, for a screen drawn while the site is away. */
     public Optional<Profile> lastKnown(PlayerRef player) {
         return Optional.ofNullable(known.get(keyOf(player))).map(Known::profile);
@@ -88,6 +103,14 @@ public final class Profiles {
     private static String keyOf(PlayerRef player) {
         String id = player.id();
         return id == null ? "name:" + player.name() : id;
+    }
+
+    /** A profile and whether it is the site's answer now or the last one it gave. */
+    public record Shown(Profile profile, boolean remembered) {
+
+        public Shown {
+            Objects.requireNonNull(profile, "profile");
+        }
     }
 
     private record Known(Profile profile, Instant at) {}

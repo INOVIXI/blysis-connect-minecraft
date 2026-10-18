@@ -16,6 +16,7 @@ import com.uxplima.blysis.application.ConnectSettings;
 import com.uxplima.blysis.application.DeliverJobs;
 import com.uxplima.blysis.application.Once;
 import com.uxplima.blysis.application.Profiles;
+import com.uxplima.blysis.application.ShelfKeeper;
 import com.uxplima.blysis.application.SiteLoop;
 import com.uxplima.blysis.application.SiteSession;
 import com.uxplima.blysis.application.StayConnected;
@@ -24,9 +25,7 @@ import com.uxplima.blysis.application.port.Lanes;
 import com.uxplima.blysis.application.port.LinkWatcher;
 import com.uxplima.blysis.application.port.Presence;
 import com.uxplima.blysis.domain.Backoff;
-import com.uxplima.blysis.domain.Hello;
 import com.uxplima.blysis.domain.LinkState;
-import com.uxplima.blysis.domain.SiteEvent;
 import com.uxplima.blysis.domain.StatusPush;
 import com.uxplima.uxmlib.storage.sql.Database;
 
@@ -200,31 +199,5 @@ public final class SiteConnection implements AutoCloseable {
         timers.forEach(Lanes.Cancel::cancel);
         http.shutdownNow();
         database.close();
-    }
-
-    /** Keeps the shelves current when the site greets or says they changed, and passes everything on. */
-    private record ShelfKeeper(CatalogCache catalog, LinkWatcher next) implements LinkWatcher {
-
-        @Override
-        public void stateChanged(LinkState state, String detail) {
-            next.stateChanged(state, detail);
-        }
-
-        @Override
-        public void greeted(Hello hello) {
-            catalog.refresh();
-            next.greeted(hello);
-        }
-
-        @Override
-        public void events(List<SiteEvent> events) {
-            next.events(events);
-        }
-
-        @Override
-        public void catalogChanged(String version) {
-            catalog.refresh();
-            next.catalogChanged(version);
-        }
     }
 }

@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The commands an operator never lets the site run, and optionally the only ones it may.
@@ -18,7 +19,8 @@ import java.util.stream.Collectors;
  * Every judgement errs toward refusing: a refused purchase command is a ticket, a run one may be a server.
  *
  * <p>The blocklist compares a word without its slash and its {@code namespace:} prefix, under every name the
- * server knows it by, so {@code /minecraft:op} and an alias of {@code op} are {@code op}. A command that runs
+ * server knows it by, asked both as written and bare, so {@code /minecraft:op}, an alias of {@code op} and
+ * {@code bukkit:rl} (an alias Paper registers only with its namespace) are what they reach. A command that runs
  * another ({@code execute ... run}, {@code return run}) is judged by every command that could follow any of
  * its {@code run} words, because a score holder or a storage path may itself be called {@code run}.
  *
@@ -79,8 +81,12 @@ public final class CommandBlocklist {
         if (bare.isEmpty()) {
             return true;
         }
-        Set<String> known =
-                names.apply(bare).stream().map(CommandBlocklist::label).collect(Collectors.toSet());
+        String written = typed(command);
+        // Asked as written as well: a server may know an alias only with its namespace, as Paper knows
+        // bukkit:rl, and the bare word then names no command and no reload.
+        Set<String> known = Stream.concat(names.apply(written).stream(), names.apply(bare).stream())
+                .map(CommandBlocklist::label)
+                .collect(Collectors.toSet());
         known.add(bare);
         if (known.stream().anyMatch(blocked::contains)) {
             return true;
@@ -88,7 +94,6 @@ public final class CommandBlocklist {
         if (allowOnly.isEmpty()) {
             return false;
         }
-        String written = typed(command);
         if (allowOnly.contains(written)) {
             return false;
         }

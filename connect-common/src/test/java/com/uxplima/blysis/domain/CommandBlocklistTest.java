@@ -67,6 +67,21 @@ final class CommandBlocklistTest {
     }
 
     @Test
+    @DisplayName("an alias the server knows only with its namespace is judged under the command it reaches")
+    void resolvesNamespacedAliases() {
+        // Paper registers Bukkit's rl as bukkit:rl alone: the bare word is no command at all.
+        Map<String, Set<String>> known = Map.of("bukkit:rl", Set.of("reload", "rl"));
+        CommandBlocklist noReload = new CommandBlocklist(List.of("reload"));
+
+        assertThat(noReload.blocks("bukkit:rl confirm", word -> known.getOrDefault(word, Set.of())))
+                .isTrue();
+        assertThat(noReload.blocks("execute run bukkit:rl confirm", word -> known.getOrDefault(word, Set.of())))
+                .isTrue();
+        assertThat(noReload.blocks("bukkit:version", word -> known.getOrDefault(word, Set.of())))
+                .isFalse();
+    }
+
+    @Test
     @DisplayName("with an allow list, only the listed commands run, wrapped or not")
     void allowsOnlyWhatIsListed() {
         CommandBlocklist strict = new CommandBlocklist(List.of(), List.of("lp", "give", "execute"));

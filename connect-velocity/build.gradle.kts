@@ -56,6 +56,10 @@ tasks.shadowJar {
     // the two apart, so a proxy upgrade cannot break this plugin and this plugin cannot
     // pull the proxy onto a different Configurate.
     relocate("org.spongepowered.configurate", "com.uxplima.blysis.libs.configurate")
+    // The journal's pool and cache. Another plugin may ship either at another version, so ours carry our
+    // namespace. The SQLite driver stays where it is: it finds its native library by its own package.
+    relocate("com.zaxxer.hikari", "com.uxplima.blysis.libs.hikari")
+    relocate("com.github.benmanes.caffeine", "com.uxplima.blysis.libs.caffeine")
 }
 
 tasks.assemble { dependsOn(tasks.shadowJar) }
@@ -86,6 +90,8 @@ val forbiddenJarEntries =
         "org/spongepowered/" to "Configurate must be relocated.",
         "com/typesafe/" to "Typesafe Config must be relocated.",
         "io/leangen/" to "geantyref must be relocated.",
+        "com/zaxxer/hikari/" to "HikariCP must be relocated, or another plugin's copy is the one that loads.",
+        "com/github/benmanes/caffeine/" to "Caffeine must be relocated, or another plugin's copy is the one that loads.",
         "org/bstats/" to "bStats must be relocated, or two plugins that bundle it clash on the proxy.",
     )
 

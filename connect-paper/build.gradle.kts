@@ -79,6 +79,10 @@ tasks.shadowJar {
     relocate("org.bstats", "com.uxplima.blysis.libs.bstats")
     relocate("com.typesafe.config", "com.uxplima.blysis.libs.typesafe")
     relocate("org.spongepowered.configurate", "com.uxplima.blysis.libs.configurate")
+    // The journal's pool and cache. Another plugin may ship either at another version, so ours carry our
+    // namespace. The SQLite driver stays where it is: it finds its native library by its own package.
+    relocate("com.zaxxer.hikari", "com.uxplima.blysis.libs.hikari")
+    relocate("com.github.benmanes.caffeine", "com.uxplima.blysis.libs.caffeine")
 
     // geantyref arrives with Configurate, which reads a generic type through it at runtime,
     // so it is a real library and it is relocated like the rest.
@@ -120,6 +124,8 @@ val forbiddenJarEntries =
         "org/spongepowered/" to "Configurate must be relocated.",
         "com/typesafe/" to "Typesafe Config must be relocated.",
         "io/leangen/" to "geantyref must be relocated.",
+        "com/zaxxer/hikari/" to "HikariCP must be relocated, or another plugin's copy is the one that loads.",
+        "com/github/benmanes/caffeine/" to "Caffeine must be relocated, or another plugin's copy is the one that loads.",
         "org/bstats/" to "bstats must be relocated when it is taken at all.",
     )
 
@@ -130,6 +136,7 @@ val requiredJarEntries =
     listOf(
         "com/uxplima/blysis/libs/uxmlib/" to "uxmLib is missing. The jar is not the shaded one.",
         "com/uxplima/blysis/paper/bootstrap/" to "The plugin's own classes are missing.",
+        "org/sqlite/JDBC.class" to "The SQLite driver is missing, and the journal is a SQLite file.",
     )
 
 val verifyJar =

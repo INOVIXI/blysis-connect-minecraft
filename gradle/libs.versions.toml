@@ -21,6 +21,9 @@ bstats         = "3.0.2"
 # soft dependencies, compileOnly, reached only past a plugin-present guard
 placeholderapi = "2.11.6"                  # me.clip:placeholderapi (extendedclip repo, not Maven Central)
 
+# Paper and Velocity both ship Gson, so the common module reads JSON with it and never shades it.
+gson           = "2.14.0"                  # com.google.code.gson:gson, the copy Paper and Velocity ship
+
 # tests
 junit          = "5.12.1"
 assertj        = "3.27.3"
@@ -52,12 +55,14 @@ uxmlib-common     = { module = "com.uxplima.uxmlib:uxmlib-common",              
 uxmlib-command    = { module = "com.uxplima.uxmlib:uxmlib-command",              version.ref = "uxmlib" }
 uxmlib-item       = { module = "com.uxplima.uxmlib:uxmlib-item",                 version.ref = "uxmlib" }
 uxmlib-gui        = { module = "com.uxplima.uxmlib:uxmlib-gui",                  version.ref = "uxmlib" }
+uxmlib-storage    = { module = "com.uxplima.uxmlib:uxmlib-storage",              version.ref = "uxmlib" }
 uxmlib-integration = { module = "com.uxplima.uxmlib:uxmlib-integration",         version.ref = "uxmlib" }
 configurate-hocon = { module = "org.spongepowered:configurate-hocon",            version.ref = "configurate" }
 jspecify          = { module = "org.jspecify:jspecify",                          version.ref = "jspecify" }
 # bstats is here for the plugin that wants metrics. Nothing in the template builds a
 # Metrics, so the template does not take it: an unused library is weight in every jar.
 bstats-bukkit     = { module = "org.bstats:bstats-bukkit",                       version.ref = "bstats" }
+gson              = { module = "com.google.code.gson:gson",                      version.ref = "gson" }
 bstats-velocity   = { module = "org.bstats:bstats-velocity",                     version.ref = "bstats" }
 placeholderapi    = { module = "me.clip:placeholderapi",                         version.ref = "placeholderapi" }
 

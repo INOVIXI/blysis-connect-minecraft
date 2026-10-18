@@ -35,6 +35,28 @@ final class CommandBlocklistTest {
     }
 
     @Test
+    @DisplayName("a word called run before the real one does not hide the command after it")
+    void judgesEveryRun() {
+        assertThat(blocklist.blocks("execute if score run x matches 1 run op Steve"))
+                .isTrue();
+        assertThat(blocklist.blocks("execute if entity @e[name=run] run execute as @a run op Steve"))
+                .isTrue();
+        assertThat(blocklist.blocks("execute " + "run ".repeat(80) + "say hi")).isTrue();
+    }
+
+    @Test
+    @DisplayName("a namespaced word passes the allow list only when listed with that namespace")
+    void namespacesAreNotStrippedForTheAllowList() {
+        CommandBlocklist strict = new CommandBlocklist(List.of(), List.of("give", "luckperms:lp"));
+
+        assertThat(strict.blocks("give Steve diamond")).isFalse();
+        assertThat(strict.blocks("evilplugin:give Steve diamond")).isTrue();
+        assertThat(strict.blocks("minecraft:give Steve diamond")).isTrue();
+        assertThat(strict.blocks("luckperms:lp user Steve parent add vip")).isFalse();
+        assertThat(strict.blocks("lp user Steve parent add vip")).isTrue();
+    }
+
+    @Test
     @DisplayName("an alias of a blocked command is blocked under the name the server knows it by")
     void resolvesAliases() {
         Map<String, Set<String>> aliases = Map.of("makeadmin", Set.of("op"));

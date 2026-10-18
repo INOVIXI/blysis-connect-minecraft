@@ -68,7 +68,7 @@ public enum Keys implements MessageKey {
             "credits.sent",
             "<tag:'BLYSIS'> <body>You sent <value><amount><body> credits to <value><to><body>. You have <value><balance><body> left."),
     CREDITS_TOP_HEADER("credits.top-header", "<h:'Top credits'>"),
-    CREDITS_TOP_LINE("credits.top-line", "<value>#<rank> <body><name> <subtext><amount>"),
+    CREDITS_TOP_LINE("credits.top-line", "<rank>#<place> <body><name> <subtext><amount>"),
     CREDITS_TOP_ANONYMOUS("credits.top-anonymous", "<subtext>a member"),
     CREDITS_TOP_EMPTY("credits.top-empty", "<tag:'BLYSIS'> <body>Nobody is on this list yet."),
     CREDITS_ADMIN_DONE(

@@ -175,7 +175,7 @@ public final class CreditsCommand {
             messages.send(
                     asker,
                     Keys.CREDITS_TOP_LINE,
-                    Text.placeholder("rank", Integer.toString(entry.rank())),
+                    Text.placeholder("place", Integer.toString(entry.rank())),
                     Text.component("name", shownName),
                     Text.placeholder("amount", Amounts.shown(entry.amount())));
         }

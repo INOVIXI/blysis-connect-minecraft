@@ -55,6 +55,9 @@ uxmlib-common     = { module = "com.uxplima.uxmlib:uxmlib-common",              
 uxmlib-command    = { module = "com.uxplima.uxmlib:uxmlib-command",              version.ref = "uxmlib" }
 uxmlib-item       = { module = "com.uxplima.uxmlib:uxmlib-item",                 version.ref = "uxmlib" }
 uxmlib-gui        = { module = "com.uxplima.uxmlib:uxmlib-gui",                  version.ref = "uxmlib" }
+uxmlib-menu       = { module = "com.uxplima.uxmlib:uxmlib-menu",                 version.ref = "uxmlib" }
+uxmlib-condition  = { module = "com.uxplima.uxmlib:uxmlib-condition",            version.ref = "uxmlib" }
+uxmlib-bedrock    = { module = "com.uxplima.uxmlib:uxmlib-bedrock",              version.ref = "uxmlib" }
 uxmlib-storage    = { module = "com.uxplima.uxmlib:uxmlib-storage",              version.ref = "uxmlib" }
 uxmlib-integration = { module = "com.uxplima.uxmlib:uxmlib-integration",         version.ref = "uxmlib" }
 configurate-hocon = { module = "org.spongepowered:configurate-hocon",            version.ref = "configurate" }
@@ -83,7 +86,8 @@ adventure = ["adventure-api", "adventure-mini", "adventure-plain"]
 testing = ["junit-jupiter", "assertj", "mockito-core", "mockito-jupiter"]
 # The foundation that every plugin takes. Add uxmlib-storage, -hud, -integration,
 # -condition or -update to the build file when the plugin actually needs them.
-uxmlib  = ["uxmlib-common", "uxmlib-command", "uxmlib-item", "uxmlib-gui"]
+uxmlib  = ["uxmlib-common", "uxmlib-command", "uxmlib-item", "uxmlib-gui", "uxmlib-menu",
+           "uxmlib-condition", "uxmlib-bedrock"]
 
 [plugins]
 shadow    = { id = "com.gradleup.shadow",   version.ref = "shadow" }

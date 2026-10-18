@@ -5,10 +5,10 @@
       "method": "POST",
       "path": "gifts/receive",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
-          "name": "Steve"
+          "id": "ex-bo-0002",
+          "name": "Bo"
         },
         "receive": false
       },
@@ -21,16 +21,16 @@
       "method": "POST",
       "path": "store/purchase",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
         "productId": "p_conform",
         "quantity": 1,
         "fields": {},
-        "recipient": "Steve",
-        "idempotencyKey": "conf-42ab7f17-refused-gift"
+        "recipient": "Bo",
+        "idempotencyKey": "conf-24de6de9-refused-gift"
       },
       "status": 409,
       "response": {
@@ -42,10 +42,10 @@
       "method": "POST",
       "path": "gifts/receive",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
-          "name": "Steve"
+          "id": "ex-bo-0002",
+          "name": "Bo"
         },
         "receive": true
       },

@@ -5,13 +5,13 @@
       "method": "POST",
       "path": "status",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "online": 1,
         "max": 20,
         "players": [
           {
-            "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-            "name": "Notch"
+            "id": "ex-ada-0001",
+            "name": "Ada"
           }
         ],
         "version": "conformance",
@@ -27,7 +27,7 @@
       "method": "POST",
       "path": "status",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "online": "many"
       },
       "status": 422,

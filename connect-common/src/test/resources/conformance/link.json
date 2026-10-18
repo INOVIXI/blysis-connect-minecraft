@@ -5,27 +5,27 @@
       "method": "POST",
       "path": "link/start",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "dbce90e0-07ea-424f-b22a-632062ee43b2",
-          "name": "Conf42ab7f"
+          "id": "39da0e44-bace-4922-9664-1a18e877b275",
+          "name": "Conf24de6d"
         }
       },
       "status": 200,
       "response": {
-        "code": "XK58-XPKQ",
-        "url": "http://localhost:3101/link?code=XK58-XPKQ",
-        "expiresAt": "2026-10-18T17:23:23.005Z"
+        "code": "DRG4-FK9W",
+        "url": "http://localhost:3101/link?code=DRG4-FK9W",
+        "expiresAt": "2026-10-18T17:42:01.856Z"
       }
     },
     {
       "method": "POST",
       "path": "link/start",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         }
       },
       "status": 409,
@@ -38,10 +38,10 @@
       "method": "POST",
       "path": "link/verify",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "dbce90e0-07ea-424f-b22a-632062ee43b2",
-          "name": "Conf42ab7f"
+          "id": "39da0e44-bace-4922-9664-1a18e877b275",
+          "name": "Conf24de6d"
         },
         "code": "AAAA-AAAA"
       },

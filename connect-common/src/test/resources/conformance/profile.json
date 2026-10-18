@@ -5,10 +5,10 @@
       "method": "POST",
       "path": "player/profile",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         }
       },
       "status": 200,
@@ -16,7 +16,7 @@
         "linked": true,
         "member": {
           "username": "siteadmin",
-          "balance": 109,
+          "balance": 185,
           "receiveGifts": true
         }
       }
@@ -25,10 +25,10 @@
       "method": "POST",
       "path": "player/profile",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "dbce90e0-07ea-424f-b22a-632062ee43b2",
-          "name": "Conf42ab7f"
+          "id": "39da0e44-bace-4922-9664-1a18e877b275",
+          "name": "Conf24de6d"
         }
       },
       "status": 200,
@@ -40,9 +40,9 @@
       "method": "POST",
       "path": "player/profile",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f"
+          "id": "ex-ada-0001"
         }
       },
       "status": 422,

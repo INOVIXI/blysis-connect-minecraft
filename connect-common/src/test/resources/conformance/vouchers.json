@@ -5,66 +5,66 @@
       "method": "POST",
       "path": "vouchers/create",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
         "amount": 2,
-        "idempotencyKey": "conf-42ab7f17-voucher"
+        "idempotencyKey": "conf-24de6de9-voucher"
       },
       "status": 200,
       "response": {
-        "voucherId": "gv_76cDTlUlbE1kaQeBX5HGSXve",
+        "voucherId": "gv_xIfNt8NaSaQH9n5Xc45s58TB",
         "amount": 2,
-        "balance": 134
+        "balance": 210
       }
     },
     {
       "method": "POST",
       "path": "vouchers/redeem",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
-          "name": "Steve"
+          "id": "ex-bo-0002",
+          "name": "Bo"
         },
-        "voucherId": "gv_76cDTlUlbE1kaQeBX5HGSXve"
+        "voucherId": "gv_xIfNt8NaSaQH9n5Xc45s58TB"
       },
       "status": 200,
       "response": {
         "amount": 2,
-        "balance": 10
+        "balance": 18
       }
     },
     {
       "method": "POST",
       "path": "vouchers/redeem",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
-          "name": "Steve"
+          "id": "ex-bo-0002",
+          "name": "Bo"
         },
-        "voucherId": "gv_76cDTlUlbE1kaQeBX5HGSXve"
+        "voucherId": "gv_xIfNt8NaSaQH9n5Xc45s58TB"
       },
       "status": 409,
       "response": {
         "error": "That voucher was already used.",
         "code": "voucher_used",
-        "usedAt": "2026-10-18T17:13:28.851Z"
+        "usedAt": "2026-10-18T17:32:06.998Z"
       }
     },
     {
       "method": "POST",
       "path": "vouchers/redeem",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
-          "name": "Steve"
+          "id": "ex-bo-0002",
+          "name": "Bo"
         },
-        "voucherId": "gv_nothing42ab7f17"
+        "voucherId": "gv_nothing24de6de9"
       },
       "status": 409,
       "response": {
@@ -76,12 +76,12 @@
       "method": "POST",
       "path": "vouchers/redeem",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "dbce90e0-07ea-424f-b22a-632062ee43b2",
-          "name": "Conf42ab7f"
+          "id": "39da0e44-bace-4922-9664-1a18e877b275",
+          "name": "Conf24de6d"
         },
-        "voucherId": "gv_76cDTlUlbE1kaQeBX5HGSXve"
+        "voucherId": "gv_xIfNt8NaSaQH9n5Xc45s58TB"
       },
       "status": 409,
       "response": {
@@ -93,13 +93,13 @@
       "method": "POST",
       "path": "vouchers/create",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
         "amount": 0,
-        "idempotencyKey": "conf-42ab7f17-voucher-zero"
+        "idempotencyKey": "conf-24de6de9-voucher-zero"
       },
       "status": 409,
       "response": {
@@ -111,17 +111,17 @@
       "method": "POST",
       "path": "vouchers/give",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "actor": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
         "amount": 3,
-        "idempotencyKey": "conf-42ab7f17-give"
+        "idempotencyKey": "conf-24de6de9-give"
       },
       "status": 200,
       "response": {
-        "voucherId": "gv_gvi5_x56Pw-p-GSggERZ6Dln",
+        "voucherId": "gv_6aCFZsVRsOyUuHwe_bgHRrir",
         "amount": 3
       }
     }

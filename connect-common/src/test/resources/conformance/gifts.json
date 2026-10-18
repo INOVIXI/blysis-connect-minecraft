@@ -5,10 +5,10 @@
       "method": "POST",
       "path": "gifts/receive",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
-          "name": "Steve"
+          "id": "ex-bo-0002",
+          "name": "Bo"
         },
         "receive": true
       },
@@ -21,23 +21,23 @@
       "method": "POST",
       "path": "store/purchase",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
         "productId": "p_conform",
         "quantity": 1,
         "fields": {},
-        "recipient": "Steve",
-        "idempotencyKey": "conf-42ab7f17-gift-1"
+        "recipient": "Bo",
+        "idempotencyKey": "conf-24de6de9-gift-1"
       },
       "status": 200,
       "response": {
-        "orderId": "cmve33ucx004gx5wrxzf6ex76",
-        "orderNumber": "ORD-MVE33UCX-J19H",
+        "orderId": "cmve3rsuv000vdewrnk62fjqk",
+        "orderNumber": "ORD-MVE3RSUU-I9US",
         "total": 1,
-        "balance": 136,
+        "balance": 212,
         "gift": true
       }
     },
@@ -45,10 +45,10 @@
       "method": "POST",
       "path": "chest/list",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
-          "name": "Steve"
+          "id": "ex-bo-0002",
+          "name": "Bo"
         }
       },
       "status": 200,
@@ -56,14 +56,14 @@
         "receiveGifts": true,
         "items": [
           {
-            "id": "cmve33udd004ix5wrhjaktxji",
+            "id": "cmve3rsv3000xdewrlxn4zb5x",
             "productId": "p_conform",
             "title": "Conformance token",
             "icon": "DIAMOND",
             "quantity": 1,
             "state": "pending_gift",
             "from": "siteadmin",
-            "createdAt": "2026-10-18T17:13:27.169Z"
+            "createdAt": "2026-10-18T17:32:04.959Z"
           },
           {
             "id": "cmve08iwl01vn7pwrbyf2aeop",
@@ -82,23 +82,50 @@
       "method": "POST",
       "path": "gifts/sent",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         }
       },
       "status": 200,
       "response": {
         "items": [
           {
-            "id": "cmve33udd004ix5wrhjaktxji",
+            "id": "cmve3rsv3000xdewrlxn4zb5x",
             "title": "Conformance token",
             "icon": "DIAMOND",
             "quantity": 1,
             "to": "alex",
             "state": "pending_gift",
-            "createdAt": "2026-10-18T17:13:27.169Z"
+            "createdAt": "2026-10-18T17:32:04.959Z"
+          },
+          {
+            "id": "cmve3qbng00cwx5wr7z6k052y",
+            "title": "Conformance token",
+            "icon": "DIAMOND",
+            "quantity": 1,
+            "to": "alex",
+            "state": "accepted",
+            "createdAt": "2026-10-18T17:30:55.996Z"
+          },
+          {
+            "id": "cmve3mzji006kx5wrjq6nv3z6",
+            "title": "Conformance token",
+            "icon": "DIAMOND",
+            "quantity": 1,
+            "to": "alex",
+            "state": "accepted",
+            "createdAt": "2026-10-18T17:28:20.334Z"
+          },
+          {
+            "id": "cmve33uu9004ux5wrx91x48kq",
+            "title": "Conformance token",
+            "icon": "DIAMOND",
+            "quantity": 1,
+            "to": "alex",
+            "state": "accepted",
+            "createdAt": "2026-10-18T17:13:27.777Z"
           },
           {
             "id": "cmve32tar0034x5wrtobh62bf",
@@ -143,31 +170,31 @@
       "method": "POST",
       "path": "gifts/cancel",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "itemId": "cmve33udd004ix5wrhjaktxji",
-        "idempotencyKey": "conf-42ab7f17-cancel"
+        "itemId": "cmve3rsv3000xdewrlxn4zb5x",
+        "idempotencyKey": "conf-24de6de9-cancel"
       },
       "status": 200,
       "response": {
         "refunded": 1,
-        "balance": 137
+        "balance": 213
       }
     },
     {
       "method": "POST",
       "path": "gifts/cancel",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "itemId": "cmve33udd004ix5wrhjaktxji",
-        "idempotencyKey": "conf-42ab7f17-cancel-again"
+        "itemId": "cmve3rsv3000xdewrlxn4zb5x",
+        "idempotencyKey": "conf-24de6de9-cancel-again"
       },
       "status": 409,
       "response": {
@@ -179,23 +206,23 @@
       "method": "POST",
       "path": "store/purchase",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
         "productId": "p_conform",
         "quantity": 1,
         "fields": {},
-        "recipient": "Steve",
-        "idempotencyKey": "conf-42ab7f17-gift-2"
+        "recipient": "Bo",
+        "idempotencyKey": "conf-24de6de9-gift-2"
       },
       "status": 200,
       "response": {
-        "orderId": "cmve33utq004sx5wrxibi9dfl",
-        "orderNumber": "ORD-MVE33UTP-65GU",
+        "orderId": "cmve3rtd50017dewrg8zi16bd",
+        "orderNumber": "ORD-MVE3RTD4-OGTS",
         "total": 1,
-        "balance": 136,
+        "balance": 212,
         "gift": true
       }
     },
@@ -203,10 +230,10 @@
       "method": "POST",
       "path": "chest/list",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
-          "name": "Steve"
+          "id": "ex-bo-0002",
+          "name": "Bo"
         }
       },
       "status": 200,
@@ -214,14 +241,14 @@
         "receiveGifts": true,
         "items": [
           {
-            "id": "cmve33uu9004ux5wrx91x48kq",
+            "id": "cmve3rtdd0019dewreot672av",
             "productId": "p_conform",
             "title": "Conformance token",
             "icon": "DIAMOND",
             "quantity": 1,
             "state": "pending_gift",
             "from": "siteadmin",
-            "createdAt": "2026-10-18T17:13:27.777Z"
+            "createdAt": "2026-10-18T17:32:05.617Z"
           },
           {
             "id": "cmve08iwl01vn7pwrbyf2aeop",
@@ -240,13 +267,13 @@
       "method": "POST",
       "path": "chest/activate",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
-          "name": "Steve"
+          "id": "ex-bo-0002",
+          "name": "Bo"
         },
-        "itemId": "cmve33uu9004ux5wrx91x48kq",
-        "idempotencyKey": "conf-42ab7f17-activate"
+        "itemId": "cmve3rtdd0019dewreot672av",
+        "idempotencyKey": "conf-24de6de9-activate"
       },
       "status": 200,
       "response": {
@@ -257,13 +284,13 @@
       "method": "POST",
       "path": "chest/activate",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
-          "name": "Steve"
+          "id": "ex-bo-0002",
+          "name": "Bo"
         },
-        "itemId": "cmve33uu9004ux5wrx91x48kq",
-        "idempotencyKey": "conf-42ab7f17-activate-again"
+        "itemId": "cmve3rtdd0019dewreot672av",
+        "idempotencyKey": "conf-24de6de9-activate-again"
       },
       "status": 409,
       "response": {
@@ -275,13 +302,13 @@
       "method": "POST",
       "path": "gifts/cancel",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "itemId": "cmve33uu9004ux5wrx91x48kq",
-        "idempotencyKey": "conf-42ab7f17-too-late"
+        "itemId": "cmve3rtdd0019dewreot672av",
+        "idempotencyKey": "conf-24de6de9-too-late"
       },
       "status": 409,
       "response": {
@@ -293,13 +320,13 @@
       "method": "POST",
       "path": "chest/claim",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
-          "name": "Steve"
+          "id": "ex-bo-0002",
+          "name": "Bo"
         },
-        "itemId": "cmve33uu9004ux5wrx91x48kq",
-        "idempotencyKey": "conf-42ab7f17-claim"
+        "itemId": "cmve3rtdd0019dewreot672av",
+        "idempotencyKey": "conf-24de6de9-claim"
       },
       "status": 200,
       "response": {
@@ -310,13 +337,13 @@
       "method": "POST",
       "path": "chest/claim",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
-          "name": "Steve"
+          "id": "ex-bo-0002",
+          "name": "Bo"
         },
-        "itemId": "cmve33uu9004ux5wrx91x48kq",
-        "idempotencyKey": "conf-42ab7f17-claim-again"
+        "itemId": "cmve3rtdd0019dewreot672av",
+        "idempotencyKey": "conf-24de6de9-claim-again"
       },
       "status": 409,
       "response": {

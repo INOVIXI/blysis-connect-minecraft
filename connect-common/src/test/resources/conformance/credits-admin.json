@@ -5,74 +5,74 @@
       "method": "POST",
       "path": "credits/admin",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "actor": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "target": "Notch",
+        "target": "Ada",
         "operation": "show",
         "amount": 0
       },
       "status": 200,
       "response": {
         "target": "siteadmin",
-        "balance": 109
+        "balance": 185
       }
     },
     {
       "method": "POST",
       "path": "credits/admin",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "actor": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "target": "Notch",
+        "target": "Ada",
         "operation": "add",
         "amount": 30,
-        "idempotencyKey": "conf-42ab7f17-add"
+        "idempotencyKey": "conf-24de6de9-add"
       },
       "status": 200,
       "response": {
         "target": "siteadmin",
-        "balance": 139
+        "balance": 215
       }
     },
     {
       "method": "POST",
       "path": "credits/admin",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "actor": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "target": "Notch",
+        "target": "Ada",
         "operation": "add",
         "amount": 30,
-        "idempotencyKey": "conf-42ab7f17-add"
+        "idempotencyKey": "conf-24de6de9-add"
       },
       "status": 200,
       "response": {
         "target": "siteadmin",
-        "balance": 139
+        "balance": 215
       }
     },
     {
       "method": "POST",
       "path": "credits/admin",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "actor": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "target": "Notch",
+        "target": "Ada",
         "operation": "add",
         "amount": -5,
-        "idempotencyKey": "conf-42ab7f17-negative"
+        "idempotencyKey": "conf-24de6de9-negative"
       },
       "status": 409,
       "response": {
@@ -84,15 +84,15 @@
       "method": "POST",
       "path": "credits/admin",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "actor": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "target": "Notch",
+        "target": "Ada",
         "operation": "remove",
-        "amount": 1139,
-        "idempotencyKey": "conf-42ab7f17-below"
+        "amount": 1215,
+        "idempotencyKey": "conf-24de6de9-below"
       },
       "status": 409,
       "response": {
@@ -104,15 +104,15 @@
       "method": "POST",
       "path": "credits/admin",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "actor": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "target": "nobody42ab7f17",
+        "target": "nobody24de6de9",
         "operation": "add",
         "amount": 30,
-        "idempotencyKey": "conf-42ab7f17-nobody"
+        "idempotencyKey": "conf-24de6de9-nobody"
       },
       "status": 409,
       "response": {

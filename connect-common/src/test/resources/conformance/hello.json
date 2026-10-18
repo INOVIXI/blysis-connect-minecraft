@@ -5,15 +5,15 @@
       "method": "POST",
       "path": "hello",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "client": {
           "name": "conformance",
           "version": "1"
         },
-        "game": "minecraft",
+        "game": "example",
         "software": {
           "name": "Conformance",
-          "version": "42ab7f17"
+          "version": "24de6de9"
         },
         "role": "server"
       },
@@ -34,8 +34,8 @@
           "catalogVersion": "c-5e8c58980501f536"
         },
         "takeover": {
-          "previousInstance": "ec9ffaf2-3a81-4354-8063-5816907fd129",
-          "lastSeen": "2026-10-18T17:12:40.664Z"
+          "previousInstance": "456b76ee-625d-4706-b2ae-74dcfbaf85a6",
+          "lastSeen": "2026-10-18T17:30:57.318Z"
         }
       }
     }

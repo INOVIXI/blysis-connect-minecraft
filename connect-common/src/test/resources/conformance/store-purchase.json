@@ -5,22 +5,22 @@
       "method": "POST",
       "path": "store/purchase",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
         "productId": "p_conform",
         "quantity": 1,
         "fields": {},
-        "idempotencyKey": "conf-42ab7f17-buy"
+        "idempotencyKey": "conf-24de6de9-buy"
       },
       "status": 200,
       "response": {
-        "orderId": "cmve33t1t0042x5wr4lhuptzo",
-        "orderNumber": "ORD-MVE33T1T-PIT1",
+        "orderId": "cmve3rrxc000hdewr7jyp377j",
+        "orderNumber": "ORD-MVE3RRWW-AWY4",
         "total": 1,
-        "balance": 137,
+        "balance": 213,
         "gift": false
       }
     },
@@ -28,38 +28,38 @@
       "method": "POST",
       "path": "store/purchase",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
         "productId": "p_conform",
         "quantity": 1,
         "fields": {},
-        "idempotencyKey": "conf-42ab7f17-buy"
+        "idempotencyKey": "conf-24de6de9-buy"
       },
       "status": 200,
       "response": {
         "gift": false,
         "total": 1,
-        "balance": 137,
-        "orderId": "cmve33t1t0042x5wr4lhuptzo",
-        "orderNumber": "ORD-MVE33T1T-PIT1"
+        "balance": 213,
+        "orderId": "cmve3rrxc000hdewr7jyp377j",
+        "orderNumber": "ORD-MVE3RRWW-AWY4"
       }
     },
     {
       "method": "POST",
       "path": "store/purchase",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
         "productId": "p_conform",
         "quantity": 0,
         "fields": {},
-        "idempotencyKey": "conf-42ab7f17-none"
+        "idempotencyKey": "conf-24de6de9-none"
       },
       "status": 409,
       "response": {
@@ -71,15 +71,15 @@
       "method": "POST",
       "path": "store/purchase",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "productId": "nothing42ab7f17",
+        "productId": "nothing24de6de9",
         "quantity": 1,
         "fields": {},
-        "idempotencyKey": "conf-42ab7f17-nothing"
+        "idempotencyKey": "conf-24de6de9-nothing"
       },
       "status": 409,
       "response": {
@@ -91,15 +91,15 @@
       "method": "POST",
       "path": "store/purchase",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "dbce90e0-07ea-424f-b22a-632062ee43b2",
-          "name": "Conf42ab7f"
+          "id": "39da0e44-bace-4922-9664-1a18e877b275",
+          "name": "Conf24de6d"
         },
         "productId": "p_conform",
         "quantity": 1,
         "fields": {},
-        "idempotencyKey": "conf-42ab7f17-stranger"
+        "idempotencyKey": "conf-24de6de9-stranger"
       },
       "status": 409,
       "response": {
@@ -111,16 +111,16 @@
       "method": "POST",
       "path": "store/purchase",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
         "productId": "p_conform",
         "quantity": 1,
         "fields": {},
-        "idempotencyKey": "conf-42ab7f17-nobody",
-        "recipient": "nobody42ab7f17"
+        "idempotencyKey": "conf-24de6de9-nobody",
+        "recipient": "nobody24de6de9"
       },
       "status": 409,
       "response": {

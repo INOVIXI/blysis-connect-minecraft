@@ -5,54 +5,54 @@
       "method": "POST",
       "path": "credits/transfer",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "to": "Steve",
+        "to": "Bo",
         "amount": 1,
-        "idempotencyKey": "conf-42ab7f17-send"
+        "idempotencyKey": "conf-24de6de9-send"
       },
       "status": 200,
       "response": {
         "sent": 1,
         "to": "alex",
-        "balance": 138
+        "balance": 214
       }
     },
     {
       "method": "POST",
       "path": "credits/transfer",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "to": "Steve",
+        "to": "Bo",
         "amount": 1,
-        "idempotencyKey": "conf-42ab7f17-send"
+        "idempotencyKey": "conf-24de6de9-send"
       },
       "status": 200,
       "response": {
         "to": "alex",
         "sent": 1,
-        "balance": 138
+        "balance": 214
       }
     },
     {
       "method": "POST",
       "path": "credits/transfer",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "to": "Notch",
+        "to": "Ada",
         "amount": 1,
-        "idempotencyKey": "conf-42ab7f17-self"
+        "idempotencyKey": "conf-24de6de9-self"
       },
       "status": 409,
       "response": {
@@ -64,14 +64,14 @@
       "method": "POST",
       "path": "credits/transfer",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "to": "Steve",
+        "to": "Bo",
         "amount": 0,
-        "idempotencyKey": "conf-42ab7f17-zero"
+        "idempotencyKey": "conf-24de6de9-zero"
       },
       "status": 409,
       "response": {
@@ -83,14 +83,14 @@
       "method": "POST",
       "path": "credits/transfer",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "to": "Steve",
+        "to": "Bo",
         "amount": 0.001,
-        "idempotencyKey": "conf-42ab7f17-fraction"
+        "idempotencyKey": "conf-24de6de9-fraction"
       },
       "status": 409,
       "response": {
@@ -102,14 +102,14 @@
       "method": "POST",
       "path": "credits/transfer",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "to": "Steve",
-        "amount": 1138,
-        "idempotencyKey": "conf-42ab7f17-broke"
+        "to": "Bo",
+        "amount": 1214,
+        "idempotencyKey": "conf-24de6de9-broke"
       },
       "status": 409,
       "response": {
@@ -121,14 +121,14 @@
       "method": "POST",
       "path": "credits/transfer",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "to": "nobody42ab7f17",
+        "to": "nobody24de6de9",
         "amount": 1,
-        "idempotencyKey": "conf-42ab7f17-nobody"
+        "idempotencyKey": "conf-24de6de9-nobody"
       },
       "status": 409,
       "response": {
@@ -140,14 +140,14 @@
       "method": "POST",
       "path": "credits/transfer",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "dbce90e0-07ea-424f-b22a-632062ee43b2",
-          "name": "Conf42ab7f"
+          "id": "39da0e44-bace-4922-9664-1a18e877b275",
+          "name": "Conf24de6d"
         },
-        "to": "Steve",
+        "to": "Bo",
         "amount": 1,
-        "idempotencyKey": "conf-42ab7f17-stranger"
+        "idempotencyKey": "conf-24de6de9-stranger"
       },
       "status": 409,
       "response": {
@@ -159,12 +159,12 @@
       "method": "POST",
       "path": "credits/transfer",
       "request": {
-        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "instance": "2a8e1c5d-7227-4dcb-aaa9-30fe9469ca29",
         "player": {
-          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
-          "name": "Notch"
+          "id": "ex-ada-0001",
+          "name": "Ada"
         },
-        "to": "Steve",
+        "to": "Bo",
         "amount": 1,
         "idempotencyKey": "short"
       },

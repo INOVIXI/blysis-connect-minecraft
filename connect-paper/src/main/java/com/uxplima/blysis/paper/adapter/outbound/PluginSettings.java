@@ -41,17 +41,27 @@ public final class PluginSettings {
     }
 
     /** One immutable snapshot of the file. */
-    public record Snapshot(LanguageSettings language, ConnectSettings connect, String voucherMaterial) {
+    public record Snapshot(LanguageSettings language, ConnectSettings connect, String voucherMaterial, Icons icons) {
 
         public Snapshot {
             Objects.requireNonNull(language, "language");
             Objects.requireNonNull(connect, "connect");
             Objects.requireNonNull(voucherMaterial, "voucherMaterial");
+            Objects.requireNonNull(icons, "icons");
         }
 
         /** The language every message falls back to. */
         public Locale defaultLocale() {
             return language.defaultLocale();
+        }
+    }
+
+    /** The items a store tile falls back to when the site names none this server knows. */
+    public record Icons(String shelf, String product) {
+
+        public Icons {
+            Objects.requireNonNull(shelf, "shelf");
+            Objects.requireNonNull(product, "product");
         }
     }
 
@@ -99,7 +109,10 @@ public final class PluginSettings {
     private Snapshot read() {
         HoconConfig config = HoconConfig.load(file);
         return new Snapshot(
-                language(config), ConnectSettingsFile.read(config), config.getString("voucher.material", "PAPER"));
+                language(config),
+                ConnectSettingsFile.read(config),
+                config.getString("voucher.material", "PAPER"),
+                new Icons(config.getString("icons.shelf", "CHEST"), config.getString("icons.product", "PAPER")));
     }
 
     /**

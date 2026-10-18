@@ -94,6 +94,43 @@ public enum Keys implements MessageKey {
     VOUCHER_ITEM_NAME("voucher.item.name", "<value><amount> credits"),
     VOUCHER_ITEM_LORE("voucher.item.lore", "<body>A credit voucher."),
     VOUCHER_ITEM_HINT("voucher.item.hint", "<subtext>Use it to add the credits to your account. It pays once."),
+    MENU_MISSING("menu.missing", "<etag:'ERROR'> <body>The <value><menu><body> window is not on this server."),
+    STORE_EMPTY("store.empty", "<tag:'BLYSIS'> <body>The store has nothing for sale in game yet."),
+    STORE_STALE(
+            "store.stale",
+            "<warn>The site does not answer, so this is the store as it last was. Buying waits until it is back."),
+    STORE_EVERY_SERVER("store.every-server", "every server"),
+    STORE_UNLIMITED("store.unlimited", "unlimited"),
+    STORE_YOURSELF("store.yourself", "yourself"),
+    STORE_NOT_GIFTABLE("store.not-giftable", "<etag:'ERROR'> <body>That cannot be given to someone else."),
+    STORE_BOUGHT(
+            "store.bought",
+            "<tag:'BLYSIS'> <body>You bought <value><quantity>x <product><body> for <value><total><body> credits. You have <value><balance><body> left. Order <value><order><body>."),
+    STORE_GIFTED(
+            "store.gifted",
+            "<tag:'BLYSIS'> <body>You gave <value><quantity>x <product><body> to <value><to><body> for <value><total><body> credits. You can take it back until they accept it."),
+    INPUT_QUANTITY("input.quantity", "<body>How many?"),
+    INPUT_RECIPIENT("input.recipient", "<body>Who is it for? Their name on the site or in game."),
+    INPUT_FIELD("input.field", "<body><field>"),
+    GIFTS_ON("chest.gifts-on", "<tag:'BLYSIS'> <body>You take gifts now."),
+    GIFTS_OFF(
+            "chest.gifts-off",
+            "<tag:'BLYSIS'> <body>You no longer take gifts. A purchase for you is refused before anyone pays."),
+    CHEST_CLAIMED("chest.claimed", "<tag:'BLYSIS'> <value><thing><body> is on its way to you."),
+    CHEST_ACCEPTED(
+            "chest.accepted", "<tag:'BLYSIS'> <body>You accepted <value><thing><body>. It is in your chest to claim."),
+    GIFT_ALREADY_TAKEN(
+            "gift.already-accepted", "<etag:'ERROR'> <body>That gift was accepted. It cannot be taken back."),
+    GIFT_TAKE_BACK_TITLE("gift.take-back-title", "Take the gift back?"),
+    GIFT_TAKEN_BACK(
+            "gift.taken-back",
+            "<tag:'BLYSIS'> <body>You took back <value><thing><body>. <value><amount><body> credits came back to you."),
+    STATE_GIFT_WAITING("state.gift-waiting", "waiting to be accepted"),
+    STATE_READY("state.ready", "ready to claim"),
+    STATE_ACCEPTED("state.accepted", "accepted"),
+    STATE_ON("state.on", "on"),
+    STATE_OFF("state.off", "off"),
+
     PLAYER_UNKNOWN("account.player-unknown", "<etag:'ERROR'> <body>Nobody called <value><input><body> is online."),
 
     LANGUAGE_CURRENT("language.current", "<tag:'BLYSIS'> <body>You read this in <value><language><body>."),

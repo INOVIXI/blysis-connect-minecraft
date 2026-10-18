@@ -1,6 +1,7 @@
 package com.uxplima.blysis.paper.adapter.outbound;
 
 import java.util.Optional;
+import java.util.function.IntSupplier;
 import java.util.function.Supplier;
 
 import com.uxplima.blysis.domain.LinkState;
@@ -51,6 +52,16 @@ public final class PluginHealth {
                                 ? HealthResult.ok("every outcome reached the site")
                                 : HealthResult.warn(count + " outcomes wait for the site"))
                         .orElseGet(() -> HealthResult.ok("no journal: this server is not connected")));
+    }
+
+    /** How many windows were read, because a window that did not parse is a menu that cannot open. */
+    public static HealthCheck windows(IntSupplier read) {
+        return check("windows", () -> {
+            int count = read.getAsInt();
+            return count == 0
+                    ? HealthResult.fail("no window was read: the store cannot open")
+                    : HealthResult.ok(count + " read");
+        });
     }
 
     private static HealthCheck check(String name, Supplier<HealthResult> answer) {

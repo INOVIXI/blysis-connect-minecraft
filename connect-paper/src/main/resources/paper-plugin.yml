@@ -17,6 +17,13 @@ dependencies:
     PlaceholderAPI:
       load: BEFORE
       required: false
+    # Bedrock players get native forms when these are present. Looked up by name, never required.
+    floodgate:
+      load: BEFORE
+      required: false
+    Geyser-Spigot:
+      load: BEFORE
+      required: false
 
 permissions:
   # What a player has by default.
@@ -31,6 +38,12 @@ permissions:
     default: true
   blysis.credits.top:
     description: Read the credit rankings
+    default: true
+  blysis.store:
+    description: Open the store and buy with credits
+    default: true
+  blysis.chest:
+    description: Take what you bought, accept gifts and take back the ones you sent
     default: true
   blysis.link:
     description: Link this account to the site

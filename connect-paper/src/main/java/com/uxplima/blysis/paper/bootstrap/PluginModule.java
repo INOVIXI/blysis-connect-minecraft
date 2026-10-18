@@ -19,11 +19,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.uxplima.blysis.paper.adapter.inbound.Redeeming;
 import com.uxplima.blysis.paper.adapter.inbound.Replies;
 import com.uxplima.blysis.paper.adapter.inbound.command.AdminCommand;
+import com.uxplima.blysis.paper.adapter.inbound.command.ChestCommand;
 import com.uxplima.blysis.paper.adapter.inbound.command.CreditsCommand;
 import com.uxplima.blysis.paper.adapter.inbound.command.LanguageSuggestions;
 import com.uxplima.blysis.paper.adapter.inbound.command.LinkCommand;
+import com.uxplima.blysis.paper.adapter.inbound.command.StoreCommand;
 import com.uxplima.blysis.paper.adapter.inbound.command.VerifyCommand;
 import com.uxplima.blysis.paper.adapter.inbound.command.VoucherCommand;
+import com.uxplima.blysis.paper.adapter.inbound.gui.ChestMenus;
+import com.uxplima.blysis.paper.adapter.inbound.gui.Purchasing;
+import com.uxplima.blysis.paper.adapter.inbound.gui.StoreMenus;
+import com.uxplima.blysis.paper.adapter.inbound.gui.Windows;
+import com.uxplima.blysis.paper.adapter.inbound.gui.Words;
 import com.uxplima.blysis.paper.adapter.inbound.listener.LanguageListener;
 import com.uxplima.blysis.paper.adapter.inbound.listener.PresenceListener;
 import com.uxplima.blysis.paper.adapter.inbound.listener.VoucherListener;
@@ -32,11 +39,23 @@ import com.uxplima.blysis.paper.adapter.outbound.PluginHealth;
 import com.uxplima.blysis.paper.adapter.outbound.PluginSettings;
 import com.uxplima.blysis.paper.adapter.outbound.VoucherItems;
 import com.uxplima.blysis.paper.application.message.Keys;
+import com.uxplima.uxmlib.bedrock.BedrockDetector;
+import com.uxplima.uxmlib.bedrock.BedrockScreen;
 import com.uxplima.uxmlib.command.annotation.AnnotatedCommands;
 import com.uxplima.uxmlib.command.annotation.CommandMessages;
 import com.uxplima.uxmlib.command.annotation.ConfiguredCommands;
 import com.uxplima.uxmlib.command.annotation.ParamResolvers;
 import com.uxplima.uxmlib.command.annotation.annotations.FromConfig;
+import com.uxplima.uxmlib.common.Log;
+import com.uxplima.uxmlib.gui.CatalogueWords;
+import com.uxplima.uxmlib.gui.anvil.AnvilInput;
+import com.uxplima.uxmlib.gui.input.TextInputInstaller;
+import com.uxplima.uxmlib.menu.MenuBasics;
+import com.uxplima.uxmlib.menu.Menus;
+import com.uxplima.uxmlib.menu.binding.MenuBindings;
+import com.uxplima.uxmlib.menu.render.ItemRenderer;
+import com.uxplima.uxmlib.menu.render.MenuRenderer;
+import com.uxplima.uxmlib.menu.runtime.MenuListener;
 import com.uxplima.uxmlib.scheduler.PaperScheduler;
 import com.uxplima.uxmlib.scheduler.Scheduler;
 import com.uxplima.uxmlib.scheduler.TaskHandle;
@@ -91,6 +110,19 @@ final class PluginModule {
     private @Nullable TaskHandle saveTask;
 
     private @Nullable ConnectionWiring connection;
+
+    private @Nullable MenuListener menuClicks;
+    private @Nullable AnvilInput anvil;
+    private TextInputInstaller.@Nullable Installed typing;
+    private @Nullable Windows windows;
+
+    /** The window files and their rows when a file is unreadable. */
+    private static final Map<String, Integer> WINDOWS = Map.of(
+            StoreMenus.STORE, 6,
+            StoreMenus.OPTIONS, 4,
+            Purchasing.BASKET, 5,
+            ChestMenus.CHEST, 6,
+            ChestMenus.SENT, 6);
 
     PluginModule(JavaPlugin plugin) {
         this.plugin = Objects.requireNonNull(plugin, "plugin");
@@ -154,7 +186,8 @@ final class PluginModule {
         Redeeming redeeming = new Redeeming(replies, messages, vouchers);
         plugin.getServer().getPluginManager().registerEvents(new VoucherListener(redeeming), plugin);
 
-        registerCommands(scheduler, messages, choices, replies, vouchers, redeeming);
+        Surfaces surfaces = registerSurfaces(scheduler, messages, replies);
+        registerCommands(scheduler, messages, choices, replies, vouchers, redeeming, surfaces);
         connection.start();
     }
 
@@ -169,7 +202,11 @@ final class PluginModule {
         if (wired == null) {
             return java.util.List.of();
         }
-        return java.util.List.of(PluginHealth.site(wired::state), PluginHealth.journal(wired::unreported));
+        Windows open = windows;
+        return java.util.List.of(
+                PluginHealth.site(wired::state),
+                PluginHealth.journal(wired::unreported),
+                PluginHealth.windows(() -> open == null ? 0 : open.specs().size()));
     }
 
     /**
@@ -180,6 +217,18 @@ final class PluginModule {
      * not a task that runs while the server is already tearing the plugin down.
      */
     void shutdown() {
+        if (menuClicks != null) {
+            menuClicks.uninstall();
+            menuClicks = null;
+        }
+        if (typing != null) {
+            typing.uninstall().run();
+            typing = null;
+        }
+        if (anvil != null) {
+            anvil.uninstall();
+            anvil = null;
+        }
         ConnectionWiring wired = connection;
         if (wired != null) {
             wired.stop();
@@ -223,7 +272,8 @@ final class PluginModule {
             LanguageChoices choices,
             Replies replies,
             VoucherItems vouchers,
-            Redeeming redeeming) {
+            Redeeming redeeming,
+            Surfaces surfaces) {
         // commands.conf names every command. @FromConfig carries only a key, and this replacer
         // rewrites it into the @Command the DSL expects. A handler must never also declare
         // @Command: uxmLib keeps a declared annotation over a produced one, so the file would be
@@ -237,6 +287,12 @@ final class PluginModule {
 
         if (commands.isEnabled(CreditsCommand.KEY, "credits")) {
             AnnotatedCommands.register(plugin, new CreditsCommand(replies, messages), resolvers, scheduler);
+        }
+        if (commands.isEnabled(StoreCommand.KEY, "store")) {
+            AnnotatedCommands.register(plugin, new StoreCommand(surfaces.store()), resolvers, scheduler);
+        }
+        if (commands.isEnabled(ChestCommand.KEY, "chest")) {
+            AnnotatedCommands.register(plugin, new ChestCommand(surfaces.chest()), resolvers, scheduler);
         }
         if (commands.isEnabled(LinkCommand.KEY, "link")) {
             AnnotatedCommands.register(plugin, new LinkCommand(replies, messages), resolvers, scheduler);
@@ -260,6 +316,84 @@ final class PluginModule {
                             choices),
                     resolvers,
                     scheduler);
+        }
+    }
+
+    /** The windows a command opens. */
+    private record Surfaces(StoreMenus store, ChestMenus chest) {}
+
+    /**
+     * The windows and the text input. The menu engine draws a Bedrock player a native form on its own, and
+     * the text input sends one a form with a single field, so nothing here asks which client a player has.
+     */
+    private Surfaces registerSurfaces(Scheduler scheduler, Messages messages, Replies replies) {
+        MenuBindings bindings = new MenuBindings();
+        MenuRenderer renderer = new MenuRenderer(
+                new ItemRenderer(
+                        new CatalogueWords(messages, styler(), CatalogueWords.Window.none()),
+                        () -> styler().theme(),
+                        bindings.placeholders()),
+                bindings.conditions());
+        BedrockDetector bedrock = BedrockDetector.forServer(plugin.getServer());
+        BedrockScreen screen = BedrockScreen.forServer(plugin.getServer());
+        Menus engine = new Menus(
+                renderer,
+                scheduler,
+                bindings.lists(),
+                null,
+                bindings.actions(),
+                bindings.conditions(),
+                null,
+                bedrock,
+                screen);
+        MenuBasics.register(bindings, engine);
+        MenuListener clicks = new MenuListener(renderer, bindings.actions(), bindings.conditions(), scheduler, plugin);
+        clicks.install();
+        this.menuClicks = clicks;
+
+        Log log = Log.of(plugin.getLogger());
+        AnvilInput anvilInput = new AnvilInput(plugin);
+        anvilInput.install();
+        this.anvil = anvilInput;
+        TextInputInstaller.Installed input = TextInputInstaller.install(
+                plugin,
+                plugin.getDataFolder().toPath(),
+                anvilInput,
+                new CatalogueWords(messages, styler()),
+                scheduler,
+                log,
+                bedrock,
+                screen);
+        this.typing = input;
+
+        Windows open = new Windows(engine, messages, plugin.getDataFolder().toPath(), log);
+        this.windows = open;
+        Words words = new Words(messages, () -> settings.current().icons());
+        StoreMenus store = new StoreMenus(bindings, open, replies, messages, words);
+        new Purchasing(bindings, open, replies, messages, input.textInput(), words);
+        ChestMenus chest = new ChestMenus(
+                bindings,
+                open,
+                replies,
+                messages,
+                words,
+                () -> settings.current().connect().address());
+        readWindows();
+        for (String unanswered : chest.problems(bindings)) {
+            plugin.getSLF4JLogger().warn("A window names '{}', and nothing answers it.", unanswered);
+        }
+        return new Surfaces(store, chest);
+    }
+
+    /** Reads every window file again, so a reload shows what an operator changed. */
+    private void readWindows() {
+        Windows open = windows;
+        if (open == null) {
+            return;
+        }
+        WINDOWS.forEach(open::read);
+        if (typing != null) {
+            typing.settings().reload();
         }
     }
 
@@ -350,6 +484,7 @@ final class PluginModule {
         reportLanguageProblems();
         styler().reload(loadTheme());
         messages.reload(styledCatalog());
+        readWindows();
     }
 
     /**
@@ -383,6 +518,10 @@ final class PluginModule {
         saveIfAbsent(dataFolder, "config.conf");
         mergeShippedConfig(dataFolder);
         saveIfAbsent(dataFolder, "commands.conf");
+        saveIfAbsent(dataFolder, "text-input.conf");
+        for (String window : WINDOWS.keySet()) {
+            saveIfAbsent(dataFolder, "menus/" + window + ".conf");
+        }
         saveSharedTheme(dataFolder);
         // The language files are discovered in the jar rather than named in a list here. A plugin gains a
         // language by gaining a file, and a list is the one place that gets forgotten when it does.

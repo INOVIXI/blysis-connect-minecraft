@@ -71,7 +71,7 @@ public final class ChestMenus {
         bindings.placeholder("gift-state", this::giftState);
         bindings.placeholder("receiving", this::receiving);
         bindings.placeholder("site", context -> this.siteAddress.get());
-        bindings.placeholder("chest-icon", this::chestIcon);
+        bindings.placeholder("chest_icon", this::chestIcon);
     }
 
     /** Asks the site what waits for the player and opens the chest on it. */

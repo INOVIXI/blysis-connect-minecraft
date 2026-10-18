@@ -166,10 +166,12 @@ public final class HttpAccounts implements Accounts {
 
     @Override
     public boolean receiveGifts(PlayerRef player, @Nullable Boolean receive) {
-        JsonObject body = withPlayer(player);
-        if (receive != null) {
-            body.addProperty("receive", receive);
+        if (receive == null) {
+            // The switch route only writes. The profile carries the switch, so a read is a profile read.
+            return profile(player).receiveGifts();
         }
+        JsonObject body = withPlayer(player);
+        body.addProperty("receive", receive);
         JsonObject answer = post("gifts/receive", body);
         return read("gifts/receive", () -> answer.get("receiveGifts").getAsBoolean());
     }

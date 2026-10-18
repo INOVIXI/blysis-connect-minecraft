@@ -34,6 +34,7 @@ final class HttpAccountsTest {
     private @Nullable HttpServer server;
     private final AtomicReference<JsonObject> lastBody = new AtomicReference<>(new JsonObject());
     private final AtomicReference<String> lastMatch = new AtomicReference<>("");
+    private final AtomicReference<String> lastPath = new AtomicReference<>("");
 
     @AfterEach
     void stop() {
@@ -51,6 +52,7 @@ final class HttpAccountsTest {
                     body.isBlank()
                             ? new JsonObject()
                             : JsonParser.parseString(body).getAsJsonObject());
+            lastPath.set(exchange.getRequestURI().getPath());
             String match = exchange.getRequestHeaders().getFirst("If-None-Match");
             lastMatch.set(match == null ? "" : match);
             byte[] bytes = answer.getBytes(StandardCharsets.UTF_8);
@@ -88,6 +90,29 @@ final class HttpAccountsTest {
         assertThat(profile.balance()).isEqualByComparingTo("250.5");
         assertThat(body().get("instance").getAsString()).isEqualTo("inst-1");
         assertThat(body().getAsJsonObject("player").get("name").getAsString()).isEqualTo("Notch");
+    }
+
+    @Test
+    @DisplayName("reading the gift switch reads the profile, because the switch route only writes")
+    void readsTheGiftSwitchFromTheProfile() throws IOException {
+        boolean receiving = accounts(
+                        200,
+                        "{\"linked\":true,\"member\":{\"username\":\"notch\",\"balance\":1,\"receiveGifts\":false}}")
+                .receiveGifts(NOTCH, null);
+
+        assertThat(receiving).isFalse();
+        assertThat(lastPath.get()).endsWith("/player/profile");
+        assertThat(body().has("receive")).isFalse();
+    }
+
+    @Test
+    @DisplayName("turning the gift switch sends the value the site must write")
+    void writesTheGiftSwitch() throws IOException {
+        assertThat(accounts(200, "{\"receiveGifts\":true}").receiveGifts(NOTCH, true))
+                .isTrue();
+
+        assertThat(lastPath.get()).endsWith("/gifts/receive");
+        assertThat(body().get("receive").getAsBoolean()).isTrue();
     }
 
     @Test

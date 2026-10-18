@@ -67,9 +67,9 @@ public final class StoreMenus {
                 "question",
                 context -> context.subject(FieldChoice.class).field().label());
         bindings.placeholder("choice", context -> context.entry(String.class));
-        bindings.placeholder("shelf-item", this::shelfItem);
+        bindings.placeholder("shelf_item", this::shelfItem);
         bindings.placeholder(
-                "product-item", context -> words.productIcon(productOf(context).icon()));
+                "product_item", context -> words.productIcon(productOf(context).icon()));
     }
 
     /** Opens the top of the store, once the catalogue and the player's balance are at hand. */

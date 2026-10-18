@@ -101,7 +101,12 @@ public final class PluginSettings {
                     List.of()),
             "link-confirmed",
             new Announcement(
-                    List.of(), List.of("[message] @link.done", "[sound] entity.player.levelup 0.6 1.4"), List.of()));
+                    List.of(), List.of("[message] @link.done", "[sound] entity.player.levelup 0.6 1.4"), List.of()),
+            "gift-received",
+            new Announcement(
+                    List.of(),
+                    List.of("[message] @announce.gift-received", "[sound] entity.experience_orb.pickup 0.7 1.2"),
+                    List.of()));
 
     private final Path file;
 

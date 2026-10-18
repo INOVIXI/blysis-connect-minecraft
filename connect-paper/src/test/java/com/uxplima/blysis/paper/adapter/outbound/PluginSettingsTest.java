@@ -87,4 +87,19 @@ final class PluginSettingsTest {
                 .hasMessageNotContaining("secret");
         assertThat(settings.current().connect().address()).isEqualTo("https://example.com");
     }
+
+    @Test
+    @DisplayName("a member online is told a gift arrived, even on a server whose file predates the event")
+    void aGiftIsToldToItsRecipient(@TempDir Path folder) throws IOException {
+        Path file = folder.resolve("config.conf");
+        Files.writeString(file, "announcements { purchase { everyone = [] } }\n", StandardCharsets.UTF_8);
+
+        var announcements = new PluginSettings(file).current().announcements();
+
+        assertThat(announcements).containsKey("gift-received");
+        assertThat(announcements.get("gift-received")).satisfies(said -> {
+            assertThat(said.player()).contains("[message] @announce.gift-received");
+            assertThat(said.everyone()).isEmpty();
+        });
+    }
 }

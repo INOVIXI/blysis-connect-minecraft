@@ -149,6 +149,10 @@ public enum Keys implements MessageKey {
     ANNOUNCE_GOAL_TITLE("announce.goal-title", "<good>Goal reached"),
     ANNOUNCE_GOAL_SUBTITLE("announce.goal-subtitle", "<body><event-title>: <value><raised><body> of <value><goal>"),
     ANNOUNCE_SOMEONE("announce.someone", "Someone"),
+    ANNOUNCE_GIFT_RECEIVED(
+            "announce.gift-received",
+            "<tag:'BLYSIS'> <value><from><body> sent you <value><quantity>x <product><body>. It waits in your chest"
+                    + " until you accept it."),
     STAFF_SITE_DOWN(
             "staff.site-down",
             "<etag:'ERROR'> <body>The site does not answer. Deliveries wait there and purchases are refused until it is back."),

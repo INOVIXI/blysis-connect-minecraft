@@ -24,7 +24,7 @@ final class EveryMaterialTokenIsAWordTest {
 
     private static final Path MENUS = Path.of("src", "main", "resources", "menus");
     private static final Pattern MATERIAL = Pattern.compile("material\\s*=\\s*\"?([^\"\\n]*)\"?");
-    private static final Pattern WORD_TOKEN = Pattern.compile("%\\w+%");
+    private static final Pattern TOKEN = Pattern.compile("%([^%]*)%");
 
     @Test
     @DisplayName("every filled in material is a token of word characters the engine expands")
@@ -38,8 +38,11 @@ final class EveryMaterialTokenIsAWordTest {
                 while (line.find()) {
                     String value = line.group(1).strip();
                     read++;
-                    if (value.contains("%") && !WORD_TOKEN.matcher(value).matches()) {
-                        offenders.add(file.getFileName() + ": " + value);
+                    Matcher token = TOKEN.matcher(value);
+                    while (token.find()) {
+                        if (!token.group(1).matches("\\w+")) {
+                            offenders.add(file.getFileName() + ": " + value);
+                        }
                     }
                 }
             }

@@ -128,6 +128,7 @@ final class PluginModule {
             StoreMenus.STORE, 6,
             StoreMenus.OPTIONS, 4,
             Purchasing.BASKET, 5,
+            Purchasing.RECIPIENTS, 6,
             ChestMenus.CHEST, 6,
             ChestMenus.SENT, 6);
 

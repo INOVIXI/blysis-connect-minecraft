@@ -38,6 +38,9 @@ public final class Purchasing {
     /** The purchase window. */
     public static final String BASKET = "basket";
 
+    /** The window that offers the players online as the one a gift is for. */
+    public static final String RECIPIENTS = "recipients";
+
     /** The text input points, each with its own mode in {@code text-input.conf}. */
     static final String QUANTITY = "quantity";
 
@@ -68,7 +71,17 @@ public final class Purchasing {
         bindings.action("blysis:more", context -> move(context, step(context)));
         bindings.action("blysis:less", context -> move(context, -step(context)));
         bindings.action("blysis:amount", this::askQuantity);
-        bindings.action("blysis:recipient", this::askRecipient);
+        bindings.list("blysis:people", Purchasing::people);
+        bindings.action("blysis:recipient", this::chooseRecipient);
+        bindings.action("blysis:type-name", this::askRecipient);
+        bindings.action(
+                "blysis:pick",
+                context -> reopen(
+                        context.player(),
+                        basketOf(context)
+                                .forRecipient(context.entry(Someone.class).name())));
+        bindings.action("blysis:basket", context -> reopen(context.player(), basketOf(context)));
+        bindings.placeholder("someone", context -> context.entry(Someone.class).name());
         bindings.action(
                 "blysis:self",
                 context -> reopen(context.player(), basketOf(context).forRecipient(null)));
@@ -107,6 +120,26 @@ public final class Purchasing {
                 reopen(viewer, basket);
             }
         });
+    }
+
+    /** Offers the players online, with a button to type a name for a member who is not. */
+    private void chooseRecipient(MenuActionContext context) {
+        Basket basket = basketOf(context);
+        if (!basket.product().giftable()) {
+            messages.send(context.player(), Keys.STORE_NOT_GIFTABLE);
+            return;
+        }
+        windows.open(context.player(), RECIPIENTS, basket);
+    }
+
+    private static java.util.List<Someone> people(MenuContext context) {
+        Player viewer = context.viewer();
+        return viewer.getServer().getOnlinePlayers().stream()
+                .filter(player -> !player.getUniqueId().equals(viewer.getUniqueId()))
+                .filter(viewer::canSee)
+                .map(player -> new Someone(player.getName()))
+                .sorted(java.util.Comparator.comparing(Someone::name, String.CASE_INSENSITIVE_ORDER))
+                .toList();
     }
 
     private void askRecipient(MenuActionContext context) {

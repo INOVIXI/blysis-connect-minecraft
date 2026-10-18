@@ -1,9 +1,13 @@
 package com.uxplima.blysis.paper.adapter.inbound.placeholder;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -47,8 +51,12 @@ public final class BlysisPlaceholders implements PlaceholderProvider {
 
     private static final java.util.regex.Pattern UNDERSCORE = java.util.regex.Pattern.compile("_");
 
+    /** How long a player read once waits before it is read again, when no answer was kept. */
+    private static final Duration RETRY = Duration.ofSeconds(30);
+
     private final Supplier<Optional<SiteSession>> session;
     private final Scheduler scheduler;
+    private final Map<UUID, Long> asked = new ConcurrentHashMap<>();
 
     public BlysisPlaceholders(Supplier<Optional<SiteSession>> session, Scheduler scheduler) {
         this.session = Objects.requireNonNull(session, "session");
@@ -91,10 +99,30 @@ public final class BlysisPlaceholders implements PlaceholderProvider {
         PlayerRef ref = new PlayerRef(player.getUniqueId().toString(), Objects.toString(player.getName(), ""));
         Optional<Profile> known = open.get().profiles().lastKnown(ref);
         if (known.isEmpty()) {
-            scheduler.async(() -> open.get().profiles().of(ref));
+            warm(open.get(), ref, player.getUniqueId());
             return "";
         }
+        asked.remove(player.getUniqueId());
         return read.apply(known.get());
+    }
+
+    /**
+     * Reads a player nobody read yet, once. A scoreboard asks every tick, and while the site is away no answer
+     * is kept, so without the gap every tick of every player would be a call to the site.
+     */
+    private void warm(SiteSession site, PlayerRef ref, UUID player) {
+        long now = System.nanoTime();
+        boolean[] due = {false};
+        asked.compute(player, (id, last) -> {
+            if (last != null && now - last < RETRY.toNanos()) {
+                return last;
+            }
+            due[0] = true;
+            return now;
+        });
+        if (due[0]) {
+            scheduler.async(() -> site.profiles().of(ref));
+        }
     }
 
     /** {@code <kind>_<period>_<place>_<name|amount>}. */

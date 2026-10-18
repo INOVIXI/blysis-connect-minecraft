@@ -131,6 +131,20 @@ public enum Keys implements MessageKey {
     STATE_ON("state.on", "on"),
     STATE_OFF("state.off", "off"),
 
+    ANNOUNCE_PURCHASE(
+            "announce.purchase",
+            "<tag:'BLYSIS'> <value><player><body> bought <value><quantity>x <product><body> on the site."),
+    ANNOUNCE_TOPUP(
+            "announce.topup",
+            "<tag:'BLYSIS'> <value><player><body> topped up <value><amount><body> credits on the site."),
+    ANNOUNCE_GOAL_TITLE("announce.goal-title", "<good>Goal reached"),
+    ANNOUNCE_GOAL_SUBTITLE("announce.goal-subtitle", "<body><event-title>: <value><raised><body> of <value><goal>"),
+    ANNOUNCE_SOMEONE("announce.someone", "Someone"),
+    STAFF_SITE_DOWN(
+            "staff.site-down",
+            "<etag:'ERROR'> <body>The site does not answer. Deliveries wait there and purchases are refused until it is back."),
+    STAFF_SITE_BACK("staff.site-back", "<tag:'BLYSIS'> <body>The site answers again."),
+
     PLAYER_UNKNOWN("account.player-unknown", "<etag:'ERROR'> <body>Nobody called <value><input><body> is online."),
 
     LANGUAGE_CURRENT("language.current", "<tag:'BLYSIS'> <body>You read this in <value><language><body>."),

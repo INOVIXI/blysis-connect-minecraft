@@ -31,6 +31,8 @@ dependencies {
     // modules one by one and leaves uxmlib-gui out.
     implementation(libs.bundles.uxmlib)
     implementation(libs.configurate.hocon)
+    // The standard operands an announcement line is read through.
+    implementation(libs.uxmlib.integration)
     // bStats, so the estate can see how many servers run this and on what. The operator opts out in
     // plugins/bStats/config.yml, which is the switch every bStats plugin shares.
     implementation(libs.bstats.bukkit)

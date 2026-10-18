@@ -17,6 +17,10 @@ dependencies:
     PlaceholderAPI:
       load: BEFORE
       required: false
+    # A skill level an announcement line may name. Read only when it is there.
+    mcmmo:
+      load: BEFORE
+      required: false
     # Bedrock players get native forms when these are present. Looked up by name, never required.
     floodgate:
       load: BEFORE
@@ -71,6 +75,9 @@ permissions:
     default: op
   blysis.admin.voucher:
     description: Mint a voucher nobody paid for, where the site allows it
+    default: op
+  blysis.admin.notify:
+    description: Read once that the site stopped answering, and once that it is back
     default: op
   blysis.admin.reload:
     description: Read the configuration again

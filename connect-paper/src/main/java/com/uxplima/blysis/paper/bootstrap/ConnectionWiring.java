@@ -27,6 +27,7 @@ import com.uxplima.blysis.domain.Backoff;
 import com.uxplima.blysis.domain.Hello;
 import com.uxplima.blysis.domain.LinkState;
 import com.uxplima.blysis.domain.PlayerRef;
+import com.uxplima.blysis.domain.SiteEvent;
 import com.uxplima.blysis.domain.StatusPush;
 import com.uxplima.blysis.paper.adapter.outbound.OnlinePlayers;
 import com.uxplima.blysis.paper.adapter.outbound.PaperConsole;
@@ -64,6 +65,9 @@ final class ConnectionWiring {
     private final OnlinePlayers online;
     private final Supplier<ConnectSettings> current;
 
+    // What players and staff are told: the announcements and the one line about a site that went away.
+    private final LinkWatcher players;
+
     private @Nullable Running running;
 
     ConnectionWiring(
@@ -73,7 +77,8 @@ final class ConnectionWiring {
             Path dataFolder,
             String version,
             OnlinePlayers online,
-            Supplier<ConnectSettings> current) {
+            Supplier<ConnectSettings> current,
+            LinkWatcher players) {
         this.server = Objects.requireNonNull(server, "server");
         this.scheduler = Objects.requireNonNull(scheduler, "scheduler");
         this.logger = Objects.requireNonNull(logger, "logger");
@@ -81,6 +86,7 @@ final class ConnectionWiring {
         this.version = Objects.requireNonNull(version, "version");
         this.online = Objects.requireNonNull(online, "online");
         this.current = Objects.requireNonNull(current, "current");
+        this.players = Objects.requireNonNull(players, "players");
     }
 
     /** Connects with the settings now in place, or says once why it does not. */
@@ -254,7 +260,13 @@ final class ConnectionWiring {
         }
 
         @Override
+        public void events(List<SiteEvent> events) {
+            players.events(events);
+        }
+
+        @Override
         public void stateChanged(LinkState state, String detail) {
+            players.stateChanged(state, detail);
             switch (state) {
                 case CONNECTING -> logger.info("Connecting to the site.");
                 case CONNECTED -> logger.info("Connected to the site.");

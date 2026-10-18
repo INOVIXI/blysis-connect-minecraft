@@ -3,8 +3,10 @@ package com.uxplima.blysis.paper.adapter.outbound;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 import com.uxplima.blysis.adapter.outbound.ConnectSettingsFile;
@@ -41,13 +43,19 @@ public final class PluginSettings {
     }
 
     /** One immutable snapshot of the file. */
-    public record Snapshot(LanguageSettings language, ConnectSettings connect, String voucherMaterial, Icons icons) {
+    public record Snapshot(
+            LanguageSettings language,
+            ConnectSettings connect,
+            String voucherMaterial,
+            Icons icons,
+            Map<String, Announcement> announcements) {
 
         public Snapshot {
             Objects.requireNonNull(language, "language");
             Objects.requireNonNull(connect, "connect");
             Objects.requireNonNull(voucherMaterial, "voucherMaterial");
             Objects.requireNonNull(icons, "icons");
+            announcements = Map.copyOf(announcements);
         }
 
         /** The language every message falls back to. */
@@ -64,6 +72,36 @@ public final class PluginSettings {
             Objects.requireNonNull(product, "product");
         }
     }
+
+    /**
+     * What one kind of site event does: lines run for every player online, for the player the event names,
+     * and once with the console as the target.
+     */
+    public record Announcement(List<String> everyone, List<String> player, List<String> once) {
+
+        public Announcement {
+            everyone = List.copyOf(everyone);
+            player = List.copyOf(player);
+            once = List.copyOf(once);
+        }
+    }
+
+    /** The events this release announces before an operator has said otherwise. */
+    private static final Map<String, Announcement> SHIPPED_ANNOUNCEMENTS = Map.of(
+            "purchase",
+            new Announcement(List.of("[message] @announce.purchase"), List.of(), List.of()),
+            "topup",
+            new Announcement(List.of("[message] @announce.topup"), List.of(), List.of()),
+            "goal-reached",
+            new Announcement(
+                    List.of(
+                            "[title] @announce.goal-title|@announce.goal-subtitle",
+                            "[sound] ui.toast.challenge_complete 0.7 1"),
+                    List.of(),
+                    List.of()),
+            "link-confirmed",
+            new Announcement(
+                    List.of(), List.of("[message] @link.done", "[sound] entity.player.levelup 0.6 1.4"), List.of()));
 
     private final Path file;
 
@@ -112,7 +150,35 @@ public final class PluginSettings {
                 language(config),
                 ConnectSettingsFile.read(config),
                 config.getString("voucher.material", "PAPER"),
-                new Icons(config.getString("icons.shelf", "CHEST"), config.getString("icons.product", "PAPER")));
+                new Icons(config.getString("icons.shelf", "CHEST"), config.getString("icons.product", "PAPER")),
+                announcements(config));
+    }
+
+    /**
+     * Every event an operator wrote a block for, and the shipped ones they did not touch.
+     *
+     * <p>A list is asked whether it exists rather than for its size: an absent list keeps the shipped one, and
+     * a list emptied on purpose stays empty.
+     */
+    private static Map<String, Announcement> announcements(HoconConfig config) {
+        Map<String, Announcement> read = new HashMap<>(SHIPPED_ANNOUNCEMENTS);
+        for (String type : config.keys("announcements")) {
+            Announcement shipped = read.getOrDefault(type, new Announcement(List.of(), List.of(), List.of()));
+            read.put(
+                    type,
+                    new Announcement(
+                            lines(config, type, "everyone", shipped.everyone()),
+                            lines(config, type, "player", shipped.player()),
+                            lines(config, type, "once", shipped.once())));
+        }
+        return read;
+    }
+
+    private static List<String> lines(HoconConfig config, String type, String who, List<String> shipped) {
+        if (config.nodeAt("announcements", type, who).virtual()) {
+            return shipped;
+        }
+        return List.copyOf(config.getList("announcements." + type + "." + who, String.class));
     }
 
     /**

@@ -16,6 +16,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.uxplima.blysis.paper.adapter.inbound.Announcements;
 import com.uxplima.blysis.paper.adapter.inbound.Redeeming;
 import com.uxplima.blysis.paper.adapter.inbound.Replies;
 import com.uxplima.blysis.paper.adapter.inbound.command.AdminCommand;
@@ -47,6 +48,8 @@ import com.uxplima.uxmlib.command.annotation.ConfiguredCommands;
 import com.uxplima.uxmlib.command.annotation.ParamResolvers;
 import com.uxplima.uxmlib.command.annotation.annotations.FromConfig;
 import com.uxplima.uxmlib.common.Log;
+import com.uxplima.uxmlib.content.ContentHooks;
+import com.uxplima.uxmlib.content.Operands;
 import com.uxplima.uxmlib.gui.CatalogueWords;
 import com.uxplima.uxmlib.gui.anvil.AnvilInput;
 import com.uxplima.uxmlib.gui.input.TextInputInstaller;
@@ -134,6 +137,9 @@ final class PluginModule {
 
     /** Build the graph and register everything that the server must see. */
     void wire() {
+        // What a skill plugin says a player's level is, so an announcement line can name one. uxmLib is
+        // relocated into this plugin, so a source another plugin of ours installed never reaches here.
+        Operands.readingSkills(ContentHooks.skillLevels(plugin.getServer()));
         Scheduler scheduler = new PaperScheduler(plugin);
         reportLanguageProblems();
 
@@ -159,6 +165,21 @@ final class PluginModule {
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             online.joined(player.getUniqueId(), player.getName());
         }
+        // The replies read the session through this holder, which is filled one line below: the connection
+        // needs the announcements, and the announcements need the replies.
+        java.util.concurrent.atomic.AtomicReference<@Nullable ConnectionWiring> wiring =
+                new java.util.concurrent.atomic.AtomicReference<>();
+        Replies replies = new Replies(messages, scheduler, () -> {
+            ConnectionWiring held = wiring.get();
+            return held == null ? java.util.Optional.empty() : held.session();
+        });
+        Announcements announcements = new Announcements(
+                plugin.getServer(),
+                scheduler,
+                messages,
+                styler(),
+                () -> settings.current().announcements(),
+                replies);
         ConnectionWiring connection = new ConnectionWiring(
                 plugin.getServer(),
                 scheduler,
@@ -166,7 +187,9 @@ final class PluginModule {
                 plugin.getDataFolder().toPath(),
                 plugin.getPluginMeta().getVersion(),
                 online,
-                () -> settings.current().connect());
+                () -> settings.current().connect(),
+                announcements);
+        wiring.set(connection);
         this.connection = connection;
         settings.afterReload(connection::reloaded);
 
@@ -178,7 +201,6 @@ final class PluginModule {
         // once more at shutdown, so a busy server never touches the disk on the thread that draws a message.
         this.saveTask = scheduler.asyncTimer(SAVE_PERIOD, SAVE_PERIOD, handle -> saveChoices());
 
-        Replies replies = new Replies(messages, scheduler, connection::session);
         VoucherItems vouchers = new VoucherItems(
                 new NamespacedKey(plugin, "voucher"),
                 messages,
@@ -217,6 +239,7 @@ final class PluginModule {
      * not a task that runs while the server is already tearing the plugin down.
      */
     void shutdown() {
+        Operands.forgetEverything();
         if (menuClicks != null) {
             menuClicks.uninstall();
             menuClicks = null;

@@ -1,0 +1,10 @@
+{
+  "id": "blysisconnect",
+  "name": "BlysisConnect",
+  "version": "${version}",
+  "description": "Connects a Velocity network to its Blysis site: deliveries, credits and linking.",
+  "url": "https://github.com/INOVIXI/blysis-connect-minecraft",
+  "authors": ["INOVIXI"],
+  "dependencies": [],
+  "main": "com.uxplima.blysis.velocity.bootstrap.ConnectVelocityPlugin"
+}

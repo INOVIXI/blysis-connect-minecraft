@@ -1,6 +1,6 @@
 # Blysis Connect for Minecraft
 
-Connects a Paper, Folia or Velocity server to a [Blysis](https://github.com/INOVIXI/blysis) site.
+Connects a Paper, Folia or Velocity server to a Blysis site.
 
 The server opens every connection itself. No port is opened on the game server and the site's
 database never leaves the site. Deliveries wait in a queue on the site until the player is
@@ -20,6 +20,18 @@ Every menu is a native form on Bedrock through Floodgate.
 
 The protocol is documented in the Blysis repository, in
 `module-sources/game-connect/PROTOCOL.md`. Any game can speak it.
+
+## Building
+
+Java 25 and the Gradle wrapper:
+
+```bash
+./gradlew build
+```
+
+The Paper and Folia jar is `connect-paper/build/libs/BlysisConnect-Paper-<version>.jar`, the
+Velocity jar `connect-velocity/build/libs/BlysisConnect-Velocity-<version>.jar`. Each runs on
+its own; no other plugin is needed.
 
 Work in progress.
 

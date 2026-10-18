@@ -1,0 +1,178 @@
+{
+  "scenario": "credits-transfer",
+  "exchanges": [
+    {
+      "method": "POST",
+      "path": "credits/transfer",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "to": "Steve",
+        "amount": 1,
+        "idempotencyKey": "conf-42ab7f17-send"
+      },
+      "status": 200,
+      "response": {
+        "sent": 1,
+        "to": "alex",
+        "balance": 138
+      }
+    },
+    {
+      "method": "POST",
+      "path": "credits/transfer",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "to": "Steve",
+        "amount": 1,
+        "idempotencyKey": "conf-42ab7f17-send"
+      },
+      "status": 200,
+      "response": {
+        "to": "alex",
+        "sent": 1,
+        "balance": 138
+      }
+    },
+    {
+      "method": "POST",
+      "path": "credits/transfer",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "to": "Notch",
+        "amount": 1,
+        "idempotencyKey": "conf-42ab7f17-self"
+      },
+      "status": 409,
+      "response": {
+        "error": "That is the same account.",
+        "code": "same_account"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "credits/transfer",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "to": "Steve",
+        "amount": 0,
+        "idempotencyKey": "conf-42ab7f17-zero"
+      },
+      "status": 409,
+      "response": {
+        "error": "Name an amount above zero, with two decimals at most.",
+        "code": "amount_invalid"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "credits/transfer",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "to": "Steve",
+        "amount": 0.001,
+        "idempotencyKey": "conf-42ab7f17-fraction"
+      },
+      "status": 409,
+      "response": {
+        "error": "Name an amount above zero, with two decimals at most.",
+        "code": "amount_invalid"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "credits/transfer",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "to": "Steve",
+        "amount": 1138,
+        "idempotencyKey": "conf-42ab7f17-broke"
+      },
+      "status": 409,
+      "response": {
+        "error": "Not enough credits.",
+        "code": "insufficient_balance"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "credits/transfer",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "to": "nobody42ab7f17",
+        "amount": 1,
+        "idempotencyKey": "conf-42ab7f17-nobody"
+      },
+      "status": 409,
+      "response": {
+        "error": "Nobody by that name.",
+        "code": "recipient_unknown"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "credits/transfer",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "dbce90e0-07ea-424f-b22a-632062ee43b2",
+          "name": "Conf42ab7f"
+        },
+        "to": "Steve",
+        "amount": 1,
+        "idempotencyKey": "conf-42ab7f17-stranger"
+      },
+      "status": 409,
+      "response": {
+        "error": "This player has no account on the site.",
+        "code": "not_linked"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "credits/transfer",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "to": "Steve",
+        "amount": 1,
+        "idempotencyKey": "short"
+      },
+      "status": 422,
+      "response": {
+        "error": "Too small: expected string to have >=8 characters",
+        "code": "invalid_request"
+      }
+    }
+  ]
+}

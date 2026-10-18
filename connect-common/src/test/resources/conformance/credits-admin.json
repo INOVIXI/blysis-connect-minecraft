@@ -1,0 +1,124 @@
+{
+  "scenario": "credits-admin",
+  "exchanges": [
+    {
+      "method": "POST",
+      "path": "credits/admin",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "actor": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "target": "Notch",
+        "operation": "show",
+        "amount": 0
+      },
+      "status": 200,
+      "response": {
+        "target": "siteadmin",
+        "balance": 109
+      }
+    },
+    {
+      "method": "POST",
+      "path": "credits/admin",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "actor": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "target": "Notch",
+        "operation": "add",
+        "amount": 30,
+        "idempotencyKey": "conf-42ab7f17-add"
+      },
+      "status": 200,
+      "response": {
+        "target": "siteadmin",
+        "balance": 139
+      }
+    },
+    {
+      "method": "POST",
+      "path": "credits/admin",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "actor": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "target": "Notch",
+        "operation": "add",
+        "amount": 30,
+        "idempotencyKey": "conf-42ab7f17-add"
+      },
+      "status": 200,
+      "response": {
+        "target": "siteadmin",
+        "balance": 139
+      }
+    },
+    {
+      "method": "POST",
+      "path": "credits/admin",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "actor": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "target": "Notch",
+        "operation": "add",
+        "amount": -5,
+        "idempotencyKey": "conf-42ab7f17-negative"
+      },
+      "status": 409,
+      "response": {
+        "error": "Name an amount above zero, with two decimals at most.",
+        "code": "amount_invalid"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "credits/admin",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "actor": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "target": "Notch",
+        "operation": "remove",
+        "amount": 1139,
+        "idempotencyKey": "conf-42ab7f17-below"
+      },
+      "status": 409,
+      "response": {
+        "error": "That would take the balance below zero.",
+        "code": "insufficient_balance"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "credits/admin",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "actor": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "target": "nobody42ab7f17",
+        "operation": "add",
+        "amount": 30,
+        "idempotencyKey": "conf-42ab7f17-nobody"
+      },
+      "status": 409,
+      "response": {
+        "error": "Nobody by that name.",
+        "code": "recipient_unknown"
+      }
+    }
+  ]
+}

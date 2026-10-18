@@ -1,0 +1,328 @@
+{
+  "scenario": "gifts",
+  "exchanges": [
+    {
+      "method": "POST",
+      "path": "gifts/receive",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
+          "name": "Steve"
+        },
+        "receive": true
+      },
+      "status": 200,
+      "response": {
+        "receiveGifts": true
+      }
+    },
+    {
+      "method": "POST",
+      "path": "store/purchase",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "productId": "p_conform",
+        "quantity": 1,
+        "fields": {},
+        "recipient": "Steve",
+        "idempotencyKey": "conf-42ab7f17-gift-1"
+      },
+      "status": 200,
+      "response": {
+        "orderId": "cmve33ucx004gx5wrxzf6ex76",
+        "orderNumber": "ORD-MVE33UCX-J19H",
+        "total": 1,
+        "balance": 136,
+        "gift": true
+      }
+    },
+    {
+      "method": "POST",
+      "path": "chest/list",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
+          "name": "Steve"
+        }
+      },
+      "status": 200,
+      "response": {
+        "receiveGifts": true,
+        "items": [
+          {
+            "id": "cmve33udd004ix5wrhjaktxji",
+            "productId": "p_conform",
+            "title": "Conformance token",
+            "icon": "DIAMOND",
+            "quantity": 1,
+            "state": "pending_gift",
+            "from": "siteadmin",
+            "createdAt": "2026-10-18T17:13:27.169Z"
+          },
+          {
+            "id": "cmve08iwl01vn7pwrbyf2aeop",
+            "productId": "p_diamond",
+            "title": "Ten diamonds",
+            "icon": "DIAMOND",
+            "quantity": 1,
+            "state": "pending_gift",
+            "from": "siteadmin",
+            "createdAt": "2026-10-18T15:53:06.741Z"
+          }
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "path": "gifts/sent",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        }
+      },
+      "status": 200,
+      "response": {
+        "items": [
+          {
+            "id": "cmve33udd004ix5wrhjaktxji",
+            "title": "Conformance token",
+            "icon": "DIAMOND",
+            "quantity": 1,
+            "to": "alex",
+            "state": "pending_gift",
+            "createdAt": "2026-10-18T17:13:27.169Z"
+          },
+          {
+            "id": "cmve32tar0034x5wrtobh62bf",
+            "title": "Conformance token",
+            "icon": "DIAMOND",
+            "quantity": 1,
+            "to": "alex",
+            "state": "accepted",
+            "createdAt": "2026-10-18T17:12:39.123Z"
+          },
+          {
+            "id": "cmve2yzfl001ex5wrxv974yh8",
+            "title": "Conformance token",
+            "icon": "DIAMOND",
+            "quantity": 1,
+            "to": "alex",
+            "state": "accepted",
+            "createdAt": "2026-10-18T17:09:40.449Z"
+          },
+          {
+            "id": "cmve08iwl01vn7pwrbyf2aeop",
+            "title": "Ten diamonds",
+            "icon": "DIAMOND",
+            "quantity": 1,
+            "to": "alex",
+            "state": "pending_gift",
+            "createdAt": "2026-10-18T15:53:06.741Z"
+          },
+          {
+            "id": "cmvdz90qx01pf7pwrjswdate3",
+            "title": "Hero",
+            "icon": "GOLDEN_HELMET",
+            "quantity": 1,
+            "to": "alex",
+            "state": "accepted",
+            "createdAt": "2026-10-18T15:25:30.249Z"
+          }
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "path": "gifts/cancel",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "itemId": "cmve33udd004ix5wrhjaktxji",
+        "idempotencyKey": "conf-42ab7f17-cancel"
+      },
+      "status": 200,
+      "response": {
+        "refunded": 1,
+        "balance": 137
+      }
+    },
+    {
+      "method": "POST",
+      "path": "gifts/cancel",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "itemId": "cmve33udd004ix5wrhjaktxji",
+        "idempotencyKey": "conf-42ab7f17-cancel-again"
+      },
+      "status": 409,
+      "response": {
+        "error": "No such item.",
+        "code": "not_found"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "store/purchase",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "productId": "p_conform",
+        "quantity": 1,
+        "fields": {},
+        "recipient": "Steve",
+        "idempotencyKey": "conf-42ab7f17-gift-2"
+      },
+      "status": 200,
+      "response": {
+        "orderId": "cmve33utq004sx5wrxibi9dfl",
+        "orderNumber": "ORD-MVE33UTP-65GU",
+        "total": 1,
+        "balance": 136,
+        "gift": true
+      }
+    },
+    {
+      "method": "POST",
+      "path": "chest/list",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
+          "name": "Steve"
+        }
+      },
+      "status": 200,
+      "response": {
+        "receiveGifts": true,
+        "items": [
+          {
+            "id": "cmve33uu9004ux5wrx91x48kq",
+            "productId": "p_conform",
+            "title": "Conformance token",
+            "icon": "DIAMOND",
+            "quantity": 1,
+            "state": "pending_gift",
+            "from": "siteadmin",
+            "createdAt": "2026-10-18T17:13:27.777Z"
+          },
+          {
+            "id": "cmve08iwl01vn7pwrbyf2aeop",
+            "productId": "p_diamond",
+            "title": "Ten diamonds",
+            "icon": "DIAMOND",
+            "quantity": 1,
+            "state": "pending_gift",
+            "from": "siteadmin",
+            "createdAt": "2026-10-18T15:53:06.741Z"
+          }
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "path": "chest/activate",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
+          "name": "Steve"
+        },
+        "itemId": "cmve33uu9004ux5wrx91x48kq",
+        "idempotencyKey": "conf-42ab7f17-activate"
+      },
+      "status": 200,
+      "response": {
+        "ok": true
+      }
+    },
+    {
+      "method": "POST",
+      "path": "chest/activate",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
+          "name": "Steve"
+        },
+        "itemId": "cmve33uu9004ux5wrx91x48kq",
+        "idempotencyKey": "conf-42ab7f17-activate-again"
+      },
+      "status": 409,
+      "response": {
+        "error": "That gift is not waiting any more.",
+        "code": "not_pending"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "gifts/cancel",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "itemId": "cmve33uu9004ux5wrx91x48kq",
+        "idempotencyKey": "conf-42ab7f17-too-late"
+      },
+      "status": 409,
+      "response": {
+        "error": "That gift is not waiting any more.",
+        "code": "not_pending"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "chest/claim",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
+          "name": "Steve"
+        },
+        "itemId": "cmve33uu9004ux5wrx91x48kq",
+        "idempotencyKey": "conf-42ab7f17-claim"
+      },
+      "status": 200,
+      "response": {
+        "ok": true
+      }
+    },
+    {
+      "method": "POST",
+      "path": "chest/claim",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
+          "name": "Steve"
+        },
+        "itemId": "cmve33uu9004ux5wrx91x48kq",
+        "idempotencyKey": "conf-42ab7f17-claim-again"
+      },
+      "status": 409,
+      "response": {
+        "error": "That item was already claimed.",
+        "code": "already_claimed"
+      }
+    }
+  ]
+}

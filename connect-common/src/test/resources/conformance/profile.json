@@ -1,0 +1,55 @@
+{
+  "scenario": "profile",
+  "exchanges": [
+    {
+      "method": "POST",
+      "path": "player/profile",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        }
+      },
+      "status": 200,
+      "response": {
+        "linked": true,
+        "member": {
+          "username": "siteadmin",
+          "balance": 109,
+          "receiveGifts": true
+        }
+      }
+    },
+    {
+      "method": "POST",
+      "path": "player/profile",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "dbce90e0-07ea-424f-b22a-632062ee43b2",
+          "name": "Conf42ab7f"
+        }
+      },
+      "status": 200,
+      "response": {
+        "linked": false
+      }
+    },
+    {
+      "method": "POST",
+      "path": "player/profile",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f"
+        }
+      },
+      "status": 422,
+      "response": {
+        "error": "Invalid input: expected string, received undefined",
+        "code": "invalid_request"
+      }
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "scenario": "gifts-receive",
+  "exchanges": [
+    {
+      "method": "POST",
+      "path": "gifts/receive",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
+          "name": "Steve"
+        },
+        "receive": false
+      },
+      "status": 200,
+      "response": {
+        "receiveGifts": false
+      }
+    },
+    {
+      "method": "POST",
+      "path": "store/purchase",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "productId": "p_conform",
+        "quantity": 1,
+        "fields": {},
+        "recipient": "Steve",
+        "idempotencyKey": "conf-42ab7f17-refused-gift"
+      },
+      "status": 409,
+      "response": {
+        "error": "That member does not accept gifts.",
+        "code": "recipient_refuses_gifts"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "gifts/receive",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "5627dd98-e6be-3c21-b8a8-e92344183641",
+          "name": "Steve"
+        },
+        "receive": true
+      },
+      "status": 200,
+      "response": {
+        "receiveGifts": true
+      }
+    }
+  ]
+}

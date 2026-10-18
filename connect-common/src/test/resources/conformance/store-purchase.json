@@ -1,0 +1,132 @@
+{
+  "scenario": "store-purchase",
+  "exchanges": [
+    {
+      "method": "POST",
+      "path": "store/purchase",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "productId": "p_conform",
+        "quantity": 1,
+        "fields": {},
+        "idempotencyKey": "conf-42ab7f17-buy"
+      },
+      "status": 200,
+      "response": {
+        "orderId": "cmve33t1t0042x5wr4lhuptzo",
+        "orderNumber": "ORD-MVE33T1T-PIT1",
+        "total": 1,
+        "balance": 137,
+        "gift": false
+      }
+    },
+    {
+      "method": "POST",
+      "path": "store/purchase",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "productId": "p_conform",
+        "quantity": 1,
+        "fields": {},
+        "idempotencyKey": "conf-42ab7f17-buy"
+      },
+      "status": 200,
+      "response": {
+        "gift": false,
+        "total": 1,
+        "balance": 137,
+        "orderId": "cmve33t1t0042x5wr4lhuptzo",
+        "orderNumber": "ORD-MVE33T1T-PIT1"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "store/purchase",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "productId": "p_conform",
+        "quantity": 0,
+        "fields": {},
+        "idempotencyKey": "conf-42ab7f17-none"
+      },
+      "status": 409,
+      "response": {
+        "error": "That quantity cannot be bought.",
+        "code": "quantity_invalid"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "store/purchase",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "productId": "nothing42ab7f17",
+        "quantity": 1,
+        "fields": {},
+        "idempotencyKey": "conf-42ab7f17-nothing"
+      },
+      "status": 409,
+      "response": {
+        "error": "No such product.",
+        "code": "not_found"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "store/purchase",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "dbce90e0-07ea-424f-b22a-632062ee43b2",
+          "name": "Conf42ab7f"
+        },
+        "productId": "p_conform",
+        "quantity": 1,
+        "fields": {},
+        "idempotencyKey": "conf-42ab7f17-stranger"
+      },
+      "status": 409,
+      "response": {
+        "code": "not_linked",
+        "error": "This player has no account on the site."
+      }
+    },
+    {
+      "method": "POST",
+      "path": "store/purchase",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        },
+        "productId": "p_conform",
+        "quantity": 1,
+        "fields": {},
+        "idempotencyKey": "conf-42ab7f17-nobody",
+        "recipient": "nobody42ab7f17"
+      },
+      "status": 409,
+      "response": {
+        "code": "recipient_unknown",
+        "error": "Nobody by that name."
+      }
+    }
+  ]
+}

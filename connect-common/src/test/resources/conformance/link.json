@@ -1,0 +1,55 @@
+{
+  "scenario": "link",
+  "exchanges": [
+    {
+      "method": "POST",
+      "path": "link/start",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "dbce90e0-07ea-424f-b22a-632062ee43b2",
+          "name": "Conf42ab7f"
+        }
+      },
+      "status": 200,
+      "response": {
+        "code": "XK58-XPKQ",
+        "url": "http://localhost:3101/link?code=XK58-XPKQ",
+        "expiresAt": "2026-10-18T17:23:23.005Z"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "link/start",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+          "name": "Notch"
+        }
+      },
+      "status": 409,
+      "response": {
+        "error": "This account is already linked.",
+        "code": "already_linked"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "link/verify",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "player": {
+          "id": "dbce90e0-07ea-424f-b22a-632062ee43b2",
+          "name": "Conf42ab7f"
+        },
+        "code": "AAAA-AAAA"
+      },
+      "status": 409,
+      "response": {
+        "error": "That code is wrong, used or expired.",
+        "code": "code_invalid"
+      }
+    }
+  ]
+}

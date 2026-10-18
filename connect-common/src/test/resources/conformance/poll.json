@@ -1,0 +1,19 @@
+{
+  "scenario": "poll",
+  "exchanges": [
+    {
+      "method": "POST",
+      "path": "poll",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815"
+      },
+      "status": 200,
+      "response": {
+        "jobs": [],
+        "events": [],
+        "eventCursor": "e-15",
+        "catalogVersion": "c-5e8c58980501f536"
+      }
+    }
+  ]
+}

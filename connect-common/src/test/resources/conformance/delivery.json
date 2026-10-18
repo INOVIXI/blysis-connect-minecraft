@@ -1,0 +1,117 @@
+{
+  "scenario": "delivery",
+  "exchanges": [
+    {
+      "method": "POST",
+      "path": "poll",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "eventCursor": "e-15"
+      },
+      "status": 200,
+      "response": {
+        "jobs": [
+          {
+            "id": "cmve33t2x0046x5wrof1gwugc",
+            "groupKey": "order:cmve33t1t0042x5wr4lhuptzo:cmve33t1w0043x5wrmh2i5rz8:gs_conform",
+            "sequence": 0,
+            "command": "say Notch passed",
+            "player": {
+              "id": "b50ad385-829d-3141-a216-7e7d7539ba7f",
+              "name": "Notch"
+            },
+            "whenOnline": true,
+            "reference": {
+              "kind": "order",
+              "id": "cmve33t1t0042x5wr4lhuptzo",
+              "label": "Conformance token"
+            }
+          }
+        ],
+        "events": [
+          {
+            "id": "e-16",
+            "type": "purchase",
+            "at": "2026-10-18T17:13:25.521Z",
+            "data": {
+              "more": 0,
+              "player": "Notch",
+              "product": "Conformance token",
+              "quantity": 1
+            }
+          }
+        ],
+        "eventCursor": "e-16",
+        "catalogVersion": "c-5e8c58980501f536"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "jobs/report",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "results": [
+          {
+            "id": "cmve33t2x0046x5wrof1gwugc",
+            "outcome": "done",
+            "detail": null
+          },
+          {
+            "id": "nothing42ab7f17",
+            "outcome": "done",
+            "detail": null
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "accepted": [
+          "cmve33t2x0046x5wrof1gwugc"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "path": "jobs/report",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "results": [
+          {
+            "id": "cmve33t2x0046x5wrof1gwugc",
+            "outcome": "done",
+            "detail": null
+          },
+          {
+            "id": "nothing42ab7f17",
+            "outcome": "done",
+            "detail": null
+          }
+        ]
+      },
+      "status": 200,
+      "response": {
+        "accepted": [
+          "cmve33t2x0046x5wrof1gwugc"
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "path": "jobs/report",
+      "request": {
+        "instance": "2bcaf621-71e6-4a14-adde-3e2e12cda815",
+        "results": [
+          {
+            "id": "cmve33t2x0046x5wrof1gwugc",
+            "outcome": "maybe"
+          }
+        ]
+      },
+      "status": 422,
+      "response": {
+        "error": "Invalid option: expected one of \"done\"|\"failed\"|\"deferred\"|\"unknown\"",
+        "code": "invalid_request"
+      }
+    }
+  ]
+}

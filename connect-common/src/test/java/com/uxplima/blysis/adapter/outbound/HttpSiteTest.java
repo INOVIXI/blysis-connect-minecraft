@@ -83,7 +83,7 @@ final class HttpSiteTest {
 
     private static HttpSite siteAt(String address, Duration timeout) {
         return new HttpSite(
-                HttpSite.client(Duration.ofSeconds(2)),
+                HttpSite.client(Duration.ofSeconds(2), address),
                 new HttpSite.Connection(
                         address, TOKEN, "inst-1", "blysis-connect-minecraft", "1.0.0", "minecraft", timeout));
     }

@@ -57,10 +57,18 @@ public final class HttpSite implements Site {
         this.pollTimeout = Duration.ofSeconds(25).plus(POLL_MARGIN);
     }
 
-    /** A client with the connect timeout set, the one every request of this class shares. */
-    public static HttpClient client(Duration connectTimeout) {
+    /**
+     * A client with the connect timeout set, the one every request of this class shares.
+     *
+     * <p>HTTP/2 over https, where the protocol is agreed in the handshake. Plain http stays on HTTP/1.1: the
+     * client would otherwise ask to upgrade every request in clear, and a server that does not answer the
+     * upgrade the way the client expects closes the connection under it.
+     */
+    public static HttpClient client(Duration connectTimeout, String address) {
+        boolean secure = address.regionMatches(true, 0, "https:", 0, "https:".length());
         return HttpClient.newBuilder()
                 .connectTimeout(connectTimeout)
+                .version(secure ? HttpClient.Version.HTTP_2 : HttpClient.Version.HTTP_1_1)
                 .followRedirects(HttpClient.Redirect.NEVER)
                 .build();
     }
@@ -202,8 +210,7 @@ public final class HttpSite implements Site {
         try {
             response = client.send(request.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
         } catch (IOException unreachable) {
-            throw new SiteUnavailable(
-                    "the site could not be reached: " + unreachable.getClass().getSimpleName(), unreachable);
+            throw new SiteUnavailable(reasonOf(unreachable), unreachable);
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();
             throw new SiteUnavailable("the call was interrupted", interrupted);
@@ -231,6 +238,17 @@ public final class HttpSite implements Site {
             throw new SiteRefused(status, code, message == null ? code : message);
         }
         throw new SiteUnavailable("the site answered " + status + (code == null ? "" : " " + code));
+    }
+
+    /** What went wrong on the way, in words an operator can act on: the innermost cause names it best. */
+    static String reasonOf(IOException unreachable) {
+        Throwable cause = unreachable;
+        while (cause.getCause() != null && cause.getCause() != cause) {
+            cause = cause.getCause();
+        }
+        String said = cause.getMessage();
+        String kind = cause.getClass().getSimpleName();
+        return "the site could not be reached: " + (said == null || said.isBlank() ? kind : kind + ", " + said);
     }
 
     private JsonObject withInstance() {

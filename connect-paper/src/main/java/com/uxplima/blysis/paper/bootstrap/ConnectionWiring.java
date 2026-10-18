@@ -160,7 +160,7 @@ final class ConnectionWiring {
                     .poolName("BlysisConnect-journal")
                     .build();
             this.journal = SqlJournal.open(database, Clock.systemUTC());
-            this.http = HttpSite.client(settings.connectTimeout());
+            this.http = HttpSite.client(settings.connectTimeout(), settings.address());
             HttpSite site = new HttpSite(
                     http,
                     new HttpSite.Connection(

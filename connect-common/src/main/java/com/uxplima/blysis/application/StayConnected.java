@@ -105,7 +105,6 @@ public final class StayConnected {
     }
 
     private void greet() {
-        move(LinkState.CONNECTING, "");
         Hello greeted = site.hello(software, softwareVersion, role);
         hello = greeted;
         catalogVersion = greeted.settings().catalogVersion();

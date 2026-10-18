@@ -13,9 +13,29 @@ import com.uxplima.uxmlib.config.HoconConfig;
  */
 public final class ConnectSettingsFile {
 
-    /** The commands no shop needs, refused unless an operator removes them. */
-    public static final List<String> SHIPPED_BLOCKED =
-            List.of("op", "deop", "stop", "restart", "reload", "whitelist", "ban-ip", "pardon-ip", "sudo");
+    /**
+     * The commands no shop needs, refused unless an operator removes them: the ones that hand out operator,
+     * stop or reload the server, run another command as someone else or from a file, or load plugin code.
+     * A permission plugin's command is not here, because selling a rank is what most shops do; the allow
+     * list is the strict form for a server that wants it.
+     */
+    public static final List<String> SHIPPED_BLOCKED = List.of(
+            "op",
+            "deop",
+            "stop",
+            "restart",
+            "reload",
+            "whitelist",
+            "ban-ip",
+            "pardon-ip",
+            "sudo",
+            "runas",
+            "function",
+            "schedule",
+            "datapack",
+            "plugman",
+            "plugmanx",
+            "pluginmanager");
 
     private ConnectSettingsFile() {}
 

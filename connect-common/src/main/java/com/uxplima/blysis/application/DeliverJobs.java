@@ -106,7 +106,7 @@ public final class DeliverJobs {
         if (job.whenOnline() && job.player() != null && !presence.isOnline(job.player())) {
             return new JobResult(job.id(), Outcome.DEFERRED, "the player left");
         }
-        if (blocklist.get().blocks(job.command())) {
+        if (blocklist.get().blocks(job.command(), console::namesOf)) {
             return new JobResult(job.id(), Outcome.FAILED, JobResult.BLOCKED);
         }
         try {

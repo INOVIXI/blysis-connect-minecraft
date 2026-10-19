@@ -69,6 +69,7 @@ public final class ChestMenus {
         bindings.placeholder("sender", context -> senderOf(context));
         bindings.placeholder("to", context -> context.entry(SentGift.class).to());
         bindings.placeholder("gift-state", this::giftState);
+        bindings.placeholder(SENT_STATE, context -> sentState(context.entry(SentGift.class)));
         bindings.placeholder("receiving", this::receiving);
         bindings.placeholder("site", context -> this.siteAddress.get());
         bindings.placeholder("chest_icon", this::chestIcon);
@@ -190,6 +191,17 @@ public final class ChestMenus {
     private static String senderOf(MenuContext context) {
         String from = context.entry(ChestItem.class).from();
         return from == null ? "" : from;
+    }
+
+    /** The placeholder a sent gift's tile picks its closing sentence by. */
+    static final String SENT_STATE = "sent_state";
+
+    /**
+     * Which closing sentence a sent gift's tile reads: a word of the file's keys, never shown. An accepted gift
+     * cannot be taken back, and its tile said "click to take it back" under "State: accepted".
+     */
+    static String sentState(SentGift gift) {
+        return gift.waiting() ? "waiting" : "accepted";
     }
 
     private String giftState(MenuContext context) {

@@ -99,7 +99,7 @@ public final class StoreMenus {
     /** Opens the store on one shelf, or says why there is nothing to show. */
     void openOn(Player viewer, Shelf shelf) {
         if (shelf.catalog().categories().isEmpty()) {
-            messages.send(viewer, shelf.stale() ? Keys.SITE_AWAY : Keys.STORE_EMPTY);
+            messages.send(viewer, shelf.stale() ? Keys.SITE_SILENT : Keys.STORE_EMPTY);
             return;
         }
         if (shelf.stale() && shelf.category() == null) {

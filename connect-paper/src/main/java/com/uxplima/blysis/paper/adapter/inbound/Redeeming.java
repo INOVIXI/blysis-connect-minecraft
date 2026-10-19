@@ -47,6 +47,12 @@ public final class Redeeming {
             return true;
         }
         PlayerRef ref = Replies.refOf(player);
+        if (replies.session().filter(site -> !site.reachable()).isPresent()) {
+            // Known away before anything is sent: nothing was taken, and the player may say so.
+            inFlight.remove(player.getUniqueId());
+            messages.send(player, Keys.SITE_AWAY);
+            return true;
+        }
         replies.session()
                 .ifPresentOrElse(
                         site -> replies.onAsync(() -> {
@@ -84,7 +90,9 @@ public final class Redeeming {
                 }
                 replies.refused(player, refused);
             }
-            case Answer.Away<java.math.BigDecimal> away -> messages.send(player, Keys.SITE_AWAY);
+            // Sent and not answered: it may have paid. The paper stays, since only the site's word takes it, and a
+            // later try is answered "already used" if it did.
+            case Answer.Away<java.math.BigDecimal> away -> messages.send(player, Keys.SITE_UNSURE);
         }
     }
 

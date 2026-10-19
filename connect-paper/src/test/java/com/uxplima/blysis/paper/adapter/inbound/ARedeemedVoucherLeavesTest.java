@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -19,15 +20,19 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+
 import com.uxplima.blysis.application.Boards;
 import com.uxplima.blysis.application.CatalogCache;
 import com.uxplima.blysis.application.Once;
 import com.uxplima.blysis.application.Profiles;
 import com.uxplima.blysis.application.SiteSession;
 import com.uxplima.blysis.application.port.Accounts;
+import com.uxplima.blysis.application.port.SiteUnavailable;
 import com.uxplima.blysis.domain.LinkState;
 import com.uxplima.blysis.domain.PlayerRef;
 import com.uxplima.blysis.paper.adapter.outbound.VoucherItems;
+import com.uxplima.blysis.paper.application.message.Keys;
 import com.uxplima.uxmlib.scheduler.Scheduler;
 import com.uxplima.uxmlib.scheduler.TaskHandle;
 import com.uxplima.uxmlib.text.message.Messages;
@@ -54,6 +59,7 @@ final class ARedeemedVoucherLeavesTest {
     private final List<Runnable> async = new ArrayList<>();
     private final Accounts accounts = mock(Accounts.class);
     private PlayerMock steve;
+    private Messages messages = mock(Messages.class);
     private Redeeming redeeming;
 
     @BeforeEach
@@ -76,7 +82,7 @@ final class ARedeemedVoucherLeavesTest {
                 mock(Boards.class),
                 mock(Once.class),
                 () -> LinkState.CONNECTED);
-        Messages messages = mock(Messages.class);
+        messages = mock(Messages.class);
         Replies replies = new Replies(messages, scheduler, () -> Optional.of(site));
         redeeming = new Redeeming(replies, messages, new VoucherItems(key, messages, () -> Material.PAPER));
     }
@@ -155,5 +161,24 @@ final class ARedeemedVoucherLeavesTest {
         siteAnswers();
 
         assertThat(vouchersLeft()).isZero();
+    }
+
+    /**
+     * A redemption sent and not answered may have paid: the voucher stays, since only the site's word takes it,
+     * and the player is told to look at the balance rather than that nothing happened. A later try with the same
+     * paper is answered "already used" and takes it then.
+     */
+    @Test
+    @DisplayName("a redemption the site did not answer keeps the voucher and asks the player to look at the balance")
+    void anUnansweredRedemptionIsUnsure() {
+        when(accounts.redeemVoucher(any(PlayerRef.class), eq(ID))).thenThrow(new SiteUnavailable("down"));
+        steve.getInventory().setItem(0, voucher());
+        steve.getInventory().setHeldItemSlot(0);
+
+        redeeming.redeem(steve, EquipmentSlot.HAND);
+        siteAnswers();
+
+        assertThat(vouchersLeft()).isEqualTo(1);
+        verify(messages).send(eq(steve), eq(Keys.SITE_UNSURE), any(TagResolver[].class));
     }
 }

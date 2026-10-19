@@ -19,6 +19,7 @@ public enum Keys implements MessageKey {
     SITE_AWAY(
             "account.away",
             "<etag:'ERROR'> <body>The site does not answer right now. Nothing was taken; try again in a moment."),
+    SITE_SILENT("account.silent", "<etag:'ERROR'> <body>The site does not answer right now. Try again in a moment."),
     SITE_UNSURE(
             "account.unsure",
             "<etag:'ERROR'> <body>The site did not confirm in time. Look at your balance before you try again."),

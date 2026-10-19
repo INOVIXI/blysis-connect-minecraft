@@ -78,7 +78,7 @@ public final class Replies {
             switch (answer) {
                 case Answer.Given<T> given -> then.accept(given.value());
                 case Answer.Refused<T> refused -> refused(asker, refused);
-                case Answer.Away<T> away -> messages.send(asker, movesCredits ? Keys.SITE_UNSURE : Keys.SITE_AWAY);
+                case Answer.Away<T> away -> messages.send(asker, movesCredits ? Keys.SITE_UNSURE : Keys.SITE_SILENT);
             }
         });
     }

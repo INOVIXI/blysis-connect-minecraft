@@ -13,7 +13,11 @@ import java.util.regex.Pattern;
  * is dispatched as written, so the fields are written into it here. They are what somebody typed on the site,
  * and a command reads a space as the end of an argument, an {@code @} as a selector and a line break as the
  * end of the line, so each value keeps letters, digits and {@code _ . - : #} only, with every space made an
- * underscore. A real player name passes unchanged.
+ * underscore and no dash in front, where a command would read a flag. A real player name passes unchanged.
+ *
+ * <p>Some values may not be changed at all. A name stripped of what it may not carry can come out as another
+ * player's ("St@eve" is Steve), so a field that names somebody is written in as it came or the line does not
+ * run. A value with nothing left of it does not run either, or the next argument would slide into its place.
  */
 final class CommandFields {
 
@@ -29,6 +33,11 @@ final class CommandFields {
 
     /** The names of the fields that say who an event is for. A command naming one is a command for a player. */
     private static final List<String> PLAYER = List.of("player", "player-name", "player-id");
+
+    /** The fields that name somebody, which are written in unchanged or not at all. */
+    private static final List<String> NAMES = List.of("player", "player-name", "player-id", "member", "from");
+
+    private static final Pattern LEADING_DASHES = Pattern.compile("^-+");
 
     /** What a field is written under, besides its own name. */
     private static final String EVENT = "event-";
@@ -48,7 +57,13 @@ final class CommandFields {
         String filled = line;
         for (Map.Entry<String, String> field : fields.entrySet()) {
             String name = field.getKey().replace('.', '-');
+            if (!filled.contains(token(name)) && !filled.contains(token(EVENT + name))) {
+                continue;
+            }
             String value = argument(field.getValue());
+            if (value.isEmpty() || (NAMES.contains(name) && !value.equals(field.getValue()))) {
+                return Optional.empty();
+            }
             filled = filled.replace(token(name), value).replace(token(EVENT + name), value);
         }
         for (String name : PLAYER) {
@@ -67,6 +82,7 @@ final class CommandFields {
     /** One argument of a command, which a typed value can neither widen nor end. */
     static String argument(String value) {
         String kept = NOT_KEPT.matcher(SPACE.matcher(value).replaceAll("_")).replaceAll("");
+        kept = LEADING_DASHES.matcher(kept).replaceFirst("");
         return kept.length() > MOST ? kept.substring(0, MOST) : kept;
     }
 }

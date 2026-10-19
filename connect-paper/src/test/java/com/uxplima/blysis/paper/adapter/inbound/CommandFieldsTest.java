@@ -30,12 +30,33 @@ final class CommandFieldsTest {
     @Test
     @DisplayName("a value cannot add an argument, pick other players or start another command")
     void aValueIsOneArgument() {
-        Map<String, String> fields = Map.of("player", "Steve permission set * true", "product", "@a; op x\nstop");
+        Map<String, String> fields = Map.of("product", "@a; op x\nstop", "quantity", "--force 2");
 
-        assertThat(CommandFields.fill("[console] lp user <player> parent add vip", fields))
-                .contains("[console] lp user Steve_permission_set__true parent add vip");
-        assertThat(CommandFields.fill("[console] give <product> stone", fields))
-                .contains("[console] give a_op_x_stop stone");
+        assertThat(CommandFields.fill("[console] give Steve <product> stone", fields))
+                .contains("[console] give Steve a_op_x_stop stone");
+        assertThat(CommandFields.fill("[console] say <quantity>", fields)).contains("[console] say force_2");
+    }
+
+    /**
+     * Stripped of what it may not carry, a typed player name can come out as somebody else's: "St@eve" is
+     * Steve. So a name is written in as it came or the line does not run.
+     */
+    @Test
+    @DisplayName("a player name that is not a name runs no command, rather than becoming somebody else's")
+    void aNameThatIsNotANameRunsNothing() {
+        assertThat(CommandFields.fill("[console] lp user <player> parent add vip", Map.of("player", "St@eve")))
+                .isEmpty();
+        assertThat(CommandFields.fill("[console] lp user <player> parent add vip", Map.of("player", "Steve x")))
+                .isEmpty();
+        assertThat(CommandFields.fill("[console] give <from> stone", Map.of("from", "a b")))
+                .isEmpty();
+    }
+
+    @Test
+    @DisplayName("a value with nothing left of it runs no command, so no argument slides into its place")
+    void anEmptyValueRunsNothing() {
+        assertThat(CommandFields.fill("[console] give <product> stone", Map.of("product", "@;")))
+                .isEmpty();
     }
 
     @Test

@@ -3,10 +3,11 @@ package com.uxplima.blysis.domain.account;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-/** A number of credits as a player types it: more than zero, two decimals at most, a dot or a comma. */
+/** A number of credits as a player types it: more than zero, at most the site's ceiling, two decimals at most, a dot or a comma. */
 public final class Amounts {
 
-    private static final BigDecimal MOST = new BigDecimal("1000000000");
+    /** The most the site holds in one amount. Above it the site refuses the request without saying why. */
+    private static final BigDecimal MOST = new BigDecimal("99999999");
 
     private Amounts() {}
 

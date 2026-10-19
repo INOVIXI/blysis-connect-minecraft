@@ -29,7 +29,7 @@ public enum Keys implements MessageKey {
             "refused.insufficient_balance", "<etag:'ERROR'> <body>You do not have enough credits for that."),
     REFUSED_AMOUNT_INVALID(
             "refused.amount_invalid",
-            "<etag:'ERROR'> <body>That is not an amount: more than zero, two decimals at most."),
+            "<etag:'ERROR'> <body>That is not an amount: more than zero, at most 99999999, two decimals at most."),
     REFUSED_SAME_ACCOUNT("refused.same_account", "<etag:'ERROR'> <body>That is your own account."),
     REFUSED_NOT_ALLOWED(
             "refused.not_allowed",

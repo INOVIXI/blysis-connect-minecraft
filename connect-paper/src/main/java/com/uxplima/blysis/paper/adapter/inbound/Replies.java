@@ -1,9 +1,11 @@
 package com.uxplima.blysis.paper.adapter.inbound;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -28,6 +30,9 @@ import com.uxplima.uxmlib.text.message.Messages;
 public final class Replies {
 
     private static final String REFUSED = "refused.";
+
+    /** How long a hand-over may wait for the player's own thread before it is taken back. */
+    private static final Duration HAND_WITHIN = Duration.ofSeconds(10);
 
     private final Messages messages;
     private final Scheduler scheduler;
@@ -98,6 +103,27 @@ public final class Replies {
         scheduler.entity(player, () -> {
             if (player.isOnline()) {
                 work.run();
+            }
+        });
+    }
+
+    /**
+     * Hands a player something the site already settled, on their own thread, or runs {@code back} off the
+     * server threads when they left first. Exactly one of the two runs.
+     *
+     * <p>The scheduler drops a task for an entity that is gone without a word, so the way back is a second
+     * task, and whichever finds the hand-over still open is the one that counts.
+     */
+    public void handOrReturn(Player player, Runnable hand, Runnable back) {
+        AtomicBoolean settled = new AtomicBoolean();
+        scheduler.entity(player, () -> {
+            if (player.isOnline() && settled.compareAndSet(false, true)) {
+                hand.run();
+            }
+        });
+        scheduler.asyncLater(HAND_WITHIN, () -> {
+            if (settled.compareAndSet(false, true)) {
+                back.run();
             }
         });
     }

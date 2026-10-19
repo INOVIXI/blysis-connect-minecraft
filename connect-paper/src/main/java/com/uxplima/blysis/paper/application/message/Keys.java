@@ -99,6 +99,14 @@ public enum Keys implements MessageKey {
             "voucher.received", "<tag:'BLYSIS'> <body>You were given a voucher of <value><amount><body> credits."),
     VOUCHER_REDEEMED("voucher.redeemed", "<tag:'BLYSIS'> <body>The voucher paid <value><amount><body> credits."),
     VOUCHER_DROPPED("voucher.dropped", "<tag:'BLYSIS'> <body>Your inventory is full, so the voucher is at your feet."),
+    VOUCHER_RETURNED(
+            "voucher.returned",
+            "<tag:'BLYSIS'> <body><player> left before the voucher reached them, so its <value><amount><body> credits"
+                    + " went back to their balance."),
+    VOUCHER_UNRETURNED(
+            "voucher.unreturned",
+            "<etag:'ERROR'> <body><player> left before the voucher reached them, and the site could not take it"
+                    + " back. Redeem <value><id><body> for them from the site."),
     VOUCHER_NOT_HELD("voucher.not-held", "<etag:'ERROR'> <body>Hold the voucher in your hand."),
     VOUCHER_ITEM_NAME("voucher.item.name", "<value><amount> credits"),
     VOUCHER_ITEM_LORE("voucher.item.lore", "<body>A credit voucher."),

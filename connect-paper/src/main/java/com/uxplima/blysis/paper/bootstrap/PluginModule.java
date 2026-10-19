@@ -344,7 +344,10 @@ final class PluginModule {
         }
         if (commands.isEnabled(VoucherCommand.KEY, "voucher")) {
             AnnotatedCommands.register(
-                    plugin, new VoucherCommand(replies, messages, vouchers, redeeming), resolvers, scheduler);
+                    plugin,
+                    new VoucherCommand(replies, messages, vouchers, redeeming, Log.of(plugin.getLogger())),
+                    resolvers,
+                    scheduler);
         }
         if (commands.isEnabled(AdminCommand.KEY, "blysis")) {
             AnnotatedCommands.register(

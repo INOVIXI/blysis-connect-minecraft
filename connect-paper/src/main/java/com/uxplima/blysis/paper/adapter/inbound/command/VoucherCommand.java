@@ -3,12 +3,17 @@ package com.uxplima.blysis.paper.adapter.inbound.command;
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+
+import com.uxplima.blysis.application.Answer;
+import com.uxplima.blysis.application.SiteSession;
 import com.uxplima.blysis.domain.PlayerRef;
 import com.uxplima.blysis.domain.account.Amounts;
 import com.uxplima.blysis.domain.account.Voucher;
@@ -23,6 +28,7 @@ import com.uxplima.uxmlib.command.annotation.annotations.Arg;
 import com.uxplima.uxmlib.command.annotation.annotations.FromConfig;
 import com.uxplima.uxmlib.command.annotation.annotations.Permission;
 import com.uxplima.uxmlib.command.annotation.annotations.PlayerOnly;
+import com.uxplima.uxmlib.common.Log;
 import com.uxplima.uxmlib.text.Text;
 import com.uxplima.uxmlib.text.message.Messages;
 
@@ -40,12 +46,14 @@ public final class VoucherCommand {
     private final Messages messages;
     private final VoucherItems items;
     private final Redeeming redeeming;
+    private final Log log;
 
-    public VoucherCommand(Replies replies, Messages messages, VoucherItems items, Redeeming redeeming) {
+    public VoucherCommand(Replies replies, Messages messages, VoucherItems items, Redeeming redeeming, Log log) {
         this.replies = Objects.requireNonNull(replies, "replies");
         this.messages = Objects.requireNonNull(messages, "messages");
         this.items = Objects.requireNonNull(items, "items");
         this.redeeming = Objects.requireNonNull(redeeming, "redeeming");
+        this.log = Objects.requireNonNull(log, "log");
     }
 
     @FromConfig(value = "create", fallbackName = "create", description = "Make a voucher out of your own credits")
@@ -65,7 +73,7 @@ public final class VoucherCommand {
                 site -> site.once().run(key -> site.accounts().createVoucher(ref, amount.get(), key)),
                 voucher -> {
                     replies.session().ifPresent(site -> site.profiles().forget(ref));
-                    hand(player, voucher);
+                    hand(player, ref, voucher, (returned, ok) -> {});
                     messages.send(
                             player, Keys.VOUCHER_CREATED, Text.placeholder("amount", Amounts.shown(voucher.amount())));
                 });
@@ -92,8 +100,15 @@ public final class VoucherCommand {
                 true,
                 site -> site.once().run(key -> site.accounts().giveVoucher(actor, amount.get(), key)),
                 voucher -> {
-                    hand(target, voucher);
                     String shown = Amounts.shown(voucher.amount());
+                    hand(target, Replies.refOf(target), voucher, (left, returned) -> {
+                        TagResolver who = Text.placeholder("player", left.getName());
+                        if (returned) {
+                            messages.send(asker, Keys.VOUCHER_RETURNED, who, Text.placeholder("amount", shown));
+                        } else {
+                            messages.send(asker, Keys.VOUCHER_UNRETURNED, who, Text.placeholder("id", voucher.id()));
+                        }
+                    });
                     messages.send(
                             asker,
                             Keys.VOUCHER_GIVEN,
@@ -113,14 +128,36 @@ public final class VoucherCommand {
         }
     }
 
-    /** Puts the voucher in the inventory on the player's own thread, or at their feet when it is full. */
-    private void hand(Player player, Voucher voucher) {
-        replies.onPlayer(player, () -> {
-            ItemStack item = items.itemFor(player, voucher);
-            if (!player.getInventory().addItem(item).isEmpty()) {
-                player.getWorld().dropItemNaturally(player.getLocation(), item);
-                messages.send(player, Keys.VOUCHER_DROPPED);
-            }
-        });
+    /**
+     * Puts the voucher in the inventory on the player's own thread, or at their feet when it is full. The site
+     * made the voucher before the item existed, so a player who left first has it redeemed into their balance,
+     * and {@code gone} hears whether that worked.
+     */
+    private void hand(Player player, PlayerRef ref, Voucher voucher, BiConsumer<Player, Boolean> gone) {
+        replies.handOrReturn(
+                player,
+                () -> {
+                    ItemStack item = items.itemFor(player, voucher);
+                    if (!player.getInventory().addItem(item).isEmpty()) {
+                        player.getWorld().dropItemNaturally(player.getLocation(), item);
+                        messages.send(player, Keys.VOUCHER_DROPPED);
+                    }
+                },
+                () -> gone.accept(player, giveBack(ref, voucher)));
+    }
+
+    private boolean giveBack(PlayerRef ref, Voucher voucher) {
+        Optional<SiteSession> site = replies.session();
+        Answer<BigDecimal> back = site.isEmpty()
+                ? new Answer.Away<BigDecimal>("not connected")
+                : Answer.of(() -> site.get().accounts().redeemVoucher(ref, voucher.id()));
+        if (back instanceof Answer.Given<BigDecimal>) {
+            return true;
+        }
+        log.warn(
+                "Voucher {} for {} never reached them and was not taken back: redeem it from the site.",
+                voucher.id(),
+                ref.name());
+        return false;
     }
 }

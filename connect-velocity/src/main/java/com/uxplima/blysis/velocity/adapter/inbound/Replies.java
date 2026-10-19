@@ -13,6 +13,7 @@ import net.kyori.adventure.audience.Audience;
 import com.uxplima.blysis.application.Answer;
 import com.uxplima.blysis.application.SiteSession;
 import com.uxplima.blysis.application.port.Lanes;
+import com.uxplima.blysis.domain.LinkState;
 import com.uxplima.blysis.velocity.application.message.Keys;
 import com.uxplima.uxmlib.text.Text;
 import com.uxplima.uxmlib.text.message.Messages;
@@ -46,7 +47,7 @@ public final class Replies {
      * at once while the site is away, so nobody waits on a timeout for a move that cannot happen.
      */
     public <T> void ask(Audience asker, boolean movesCredits, Function<SiteSession, Answer<T>> call, Consumer<T> then) {
-        Optional<SiteSession> open = session.get();
+        Optional<SiteSession> open = session();
         if (open.isEmpty()) {
             messages.send(asker, Keys.NOT_CONNECTED);
             return;
@@ -75,7 +76,8 @@ public final class Replies {
         }
     }
 
+    /** The current session, or none while the site has stopped this proxy: it calls nothing until a reload. */
     public Optional<SiteSession> session() {
-        return session.get();
+        return session.get().filter(site -> site.state().get() != LinkState.STOPPED);
     }
 }

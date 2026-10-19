@@ -25,7 +25,8 @@ import org.slf4j.Logger;
 
 /**
  * The connection's lifecycle on Paper and Folia: built from one snapshot of the settings, and built again when
- * a reload changed the address or the token. Any other reload leaves the running one alone.
+ * a reload changed the address or the token, or the site had stopped it. Any other reload leaves the running one
+ * alone.
  */
 final class ConnectionWiring {
 
@@ -91,13 +92,10 @@ final class ConnectionWiring {
                 new ConsoleWatcher(new SlfConsole(logger), players));
     }
 
-    /** Builds the connection again when the reload changed where or who this server is. */
+    /** Builds the connection again when the reload changed where or who this server is, or the site stopped it. */
     synchronized void reloaded() {
         SiteConnection now = running;
-        ConnectSettings connect = current.get();
-        if (now != null
-                && now.settings().address().equals(connect.address())
-                && now.settings().token().equals(connect.token())) {
+        if (now != null && !now.settings().reconnectsFor(current.get(), now.state())) {
             return;
         }
         stop();

@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.uxplima.blysis.domain.CommandBlocklist;
+import com.uxplima.blysis.domain.LinkState;
 
 /**
  * Where the site is, how this server proves itself to it, and how patiently it calls.
@@ -55,6 +56,17 @@ public record ConnectSettings(
         if (retryLongest.compareTo(retryFirst) < 0) {
             throw new IllegalArgumentException("connection.retry-longest-seconds is shorter than the first wait");
         }
+    }
+
+    /**
+     * Whether a reload to {@code next} builds the connection these settings run again: it points at another site
+     * or carries another token, or the site stopped this one. The console tells an operator whose server the site
+     * refused to run a reload once it is put right, and a reload that kept a stopped connection did nothing.
+     */
+    public boolean reconnectsFor(ConnectSettings next, LinkState state) {
+        Objects.requireNonNull(next, "next");
+        Objects.requireNonNull(state, "state");
+        return state == LinkState.STOPPED || !address.equals(next.address) || !token.equals(next.token);
     }
 
     /** True when both the address and the token are there. */

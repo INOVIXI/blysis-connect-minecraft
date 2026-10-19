@@ -121,7 +121,7 @@ final class ProxyModule {
                 new ConsoleWatcher(new SlfConsole(logger), events));
     }
 
-    /** Reads every file again, and connects again when the address or the token changed. */
+    /** Reads every file again, and connects again when the address or the token changed, or the site stopped it. */
     synchronized boolean reload() {
         ProxySettings read = settings;
         Messages words = messages;
@@ -137,10 +137,7 @@ final class ProxyModule {
             return false;
         }
         SiteConnection now = running;
-        ConnectSettings connect = read.current().connect();
-        if (now != null
-                && now.settings().address().equals(connect.address())
-                && now.settings().token().equals(connect.token())) {
+        if (now != null && !now.settings().reconnectsFor(read.current().connect(), now.state())) {
             return true;
         }
         stop();

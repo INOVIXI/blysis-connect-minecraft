@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 
 import com.uxplima.blysis.application.Answer;
 import com.uxplima.blysis.application.SiteSession;
+import com.uxplima.blysis.domain.LinkState;
 import com.uxplima.blysis.domain.PlayerRef;
 import com.uxplima.blysis.paper.application.message.Keys;
 import com.uxplima.uxmlib.scheduler.Scheduler;
@@ -62,7 +63,7 @@ public final class Replies {
      */
     public <T> void ask(
             CommandSender asker, boolean movesCredits, Function<SiteSession, Answer<T>> call, Consumer<T> then) {
-        Optional<SiteSession> open = session.get();
+        Optional<SiteSession> open = session();
         if (open.isEmpty()) {
             messages.send(asker, Keys.NOT_CONNECTED);
             return;
@@ -128,8 +129,12 @@ public final class Replies {
         });
     }
 
-    /** The current session, for a surface that only reads what is kept. */
+    /**
+     * The current session, for a surface that only reads what is kept. None while the site has stopped this
+     * server: it calls nothing until an operator reloads, and a player is told the server is not connected rather
+     * than the code the site refused the server with.
+     */
     public Optional<SiteSession> session() {
-        return session.get();
+        return session.get().filter(site -> site.state().get() != LinkState.STOPPED);
     }
 }

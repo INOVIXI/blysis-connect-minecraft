@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import com.uxplima.blysis.paper.testing.SourcePaths;
+import com.uxplima.uxmlib.menu.spec.ClickKind;
 import com.uxplima.uxmlib.menu.spec.MenuItemSpec;
 import com.uxplima.uxmlib.menu.spec.MenuSpec;
 import com.uxplima.uxmlib.menu.spec.MenuSpecLoader;
@@ -94,6 +95,37 @@ final class BedrockFormsTest {
 
         assertThat(empty)
                 .describedAs("A form with no button is a form with nothing in it. Give the window a row or a click.")
+                .isEmpty();
+    }
+
+    /**
+     * A tile with more than one gesture asks a Bedrock player which one they meant, and a tap has no left and no
+     * right. Found live: the chest tile asked a phone player to choose between "left click" and "right click".
+     */
+    @Test
+    @DisplayName("a tile with more than one gesture names each, so a Bedrock form asks in words a tap can mean")
+    void everyGestureOfAManyGestureTileIsNamed() throws IOException {
+        List<String> unnamed = new ArrayList<>();
+
+        for (Path window : windows()) {
+            specOf(window).items().forEach((name, item) -> {
+                List<ClickKind> bound = java.util.Arrays.stream(ClickKind.values())
+                        .filter(kind -> kind != ClickKind.ANY)
+                        .filter(kind -> !item.click()
+                                .actions()
+                                .getOrDefault(kind, List.of())
+                                .isEmpty())
+                        .toList();
+                if (bound.size() > 1) {
+                    bound.stream()
+                            .filter(kind -> item.click().nameFor(kind).isEmpty())
+                            .forEach(kind -> unnamed.add(window.getFileName() + " " + name + " " + kind));
+                }
+            });
+        }
+
+        assertThat(unnamed)
+                .describedAs("Name them in the click block: names { left = \"@...\", right = \"@...\" }.")
                 .isEmpty();
     }
 

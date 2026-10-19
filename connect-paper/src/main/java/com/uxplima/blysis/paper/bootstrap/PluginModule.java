@@ -454,9 +454,12 @@ final class PluginModule {
      * operator who writes {@code messages_de.conf} has German and needs no new build.
      */
     private Languages readLanguages() {
+        // The jar's own files sit under the operator's, so a line an update added is never shown as its key.
         return Languages.load(
                 plugin.getDataFolder().toPath().resolve(MESSAGES),
-                settings.current().defaultLocale());
+                settings.current().defaultLocale(),
+                getClass().getClassLoader(),
+                MESSAGES);
     }
 
     /**

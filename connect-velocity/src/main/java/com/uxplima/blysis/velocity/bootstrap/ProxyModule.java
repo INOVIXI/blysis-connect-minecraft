@@ -208,7 +208,9 @@ final class ProxyModule {
     /** The words, painted, read from the folder so a language is gained by gaining a file. */
     private MessageCatalog catalog(ProxySettings read) {
         Locale fallback = read.current().language().defaultLocale();
-        Languages languages = Languages.load(folder.resolve(MESSAGES), fallback);
+        // The jar's own files sit under the operator's, so a line an update added is never shown as its key.
+        Languages languages =
+                Languages.load(folder.resolve(MESSAGES), fallback, getClass().getClassLoader(), MESSAGES);
         for (String problem : languages.problems()) {
             logger.warn(problem);
         }

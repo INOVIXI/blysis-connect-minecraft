@@ -2,6 +2,7 @@ package com.uxplima.blysis.paper.adapter.inbound.command;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -88,16 +89,34 @@ public final class CreditsCommand {
     @Permission("blysis.credits.top")
     public void top(
             Sender sender,
-            @Arg(value = "kind", optional = true, def = "balance") String kind,
-            @Arg(value = "period", optional = true, def = "all") String period) {
+            @Arg(value = "kind", optional = true, def = "balance") TopKind kind,
+            @Arg(value = "period", optional = true, def = "all") TopPeriod period) {
         CommandSender asker = sender.bukkit();
-        String readKind = List.of("topups", "latest").contains(kind) ? kind : "balance";
-        String readPeriod = List.of("day", "month", "year").contains(period) ? period : "all";
+        String readKind = kind.name().toLowerCase(Locale.ROOT);
+        String readPeriod = period.name().toLowerCase(Locale.ROOT);
         replies.ask(
                 asker,
                 false,
                 site -> Answer.of(() -> site.accounts().top(readKind, readPeriod, TOP_SIZE)),
                 entries -> sayTop(asker, entries));
+    }
+
+    /**
+     * The rankings the site keeps. A word is offered as a player types and one that names none is refused
+     * with the list, where a free word used to fall back to the balance list without a word.
+     */
+    public enum TopKind {
+        BALANCE,
+        TOPUPS,
+        LATEST
+    }
+
+    /** The periods a ranking covers. */
+    public enum TopPeriod {
+        DAY,
+        MONTH,
+        YEAR,
+        ALL
     }
 
     @FromConfig(value = "add", fallbackName = "add", description = "Add credits to a member, for staff")

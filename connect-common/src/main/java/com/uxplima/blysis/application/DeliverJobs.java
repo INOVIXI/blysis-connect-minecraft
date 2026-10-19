@@ -9,6 +9,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import com.uxplima.blysis.application.port.Console;
@@ -32,6 +34,10 @@ import org.jspecify.annotations.Nullable;
  * <p>It runs on an async thread and waits there for the console, never on a server thread.
  */
 public final class DeliverJobs {
+
+    private static final int WAITING = 0;
+    private static final int STARTED = 1;
+    private static final int GIVEN_UP = 2;
 
     private final Journal journal;
     private final Console console;
@@ -98,7 +104,7 @@ public final class DeliverJobs {
             journal.started(job.id());
             JobResult result = failed ? new JobResult(job.id(), Outcome.FAILED, JobResult.SKIPPED) : run(job);
             journal.finished(result);
-            failed |= result.outcome() == Outcome.FAILED;
+            failed |= result.outcome() == Outcome.FAILED || result.outcome() == Outcome.UNKNOWN;
         }
     }
 
@@ -109,8 +115,9 @@ public final class DeliverJobs {
         if (blocklist.get().blocks(job.command(), console::namesOf)) {
             return new JobResult(job.id(), Outcome.FAILED, JobResult.BLOCKED);
         }
+        AtomicInteger turn = new AtomicInteger(WAITING);
         try {
-            Console.ConsoleAnswer answer = console.run(job.command())
+            Console.ConsoleAnswer answer = console.run(job.command(), () -> turn.compareAndSet(WAITING, STARTED))
                     .orTimeout(commandTimeout.toMillis(), TimeUnit.MILLISECONDS)
                     .join();
             return answer.ok()
@@ -118,8 +125,27 @@ public final class DeliverJobs {
                     : new JobResult(job.id(), Outcome.FAILED, failureText(answer.output()));
         } catch (CompletionException thrown) {
             Throwable cause = thrown.getCause() == null ? thrown : thrown.getCause();
-            return new JobResult(job.id(), Outcome.FAILED, String.valueOf(cause.getMessage()));
+            if (cause instanceof TimeoutException) {
+                return tooLong(job, turn);
+            }
+            String said = cause.getMessage();
+            return new JobResult(
+                    job.id(), Outcome.FAILED, said == null ? cause.getClass().getSimpleName() : said);
         }
+    }
+
+    /**
+     * A command that has not answered in time. Closing its gate first means one still waiting for its turn
+     * never runs, so failed is true and sending it again is safe; one that already started may still be
+     * running, and only staff can tell whether it did.
+     */
+    private JobResult tooLong(Job job, AtomicInteger turn) {
+        long seconds = commandTimeout.toSeconds();
+        if (turn.compareAndSet(WAITING, GIVEN_UP)) {
+            return new JobResult(job.id(), Outcome.FAILED, "did not start within " + seconds + " s, and will not");
+        }
+        return new JobResult(
+                job.id(), Outcome.UNKNOWN, "started and did not finish within " + seconds + " s: check whether it ran");
     }
 
     /** The jobs of each purchase together, in the order the site gave them. */

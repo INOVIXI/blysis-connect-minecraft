@@ -5,6 +5,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BooleanSupplier;
 
 import org.bukkit.Server;
 import org.bukkit.command.Command;
@@ -28,10 +29,20 @@ public final class PaperConsole implements Console {
 
     @Override
     public CompletableFuture<ConsoleAnswer> run(String command) {
+        return run(command, () -> true);
+    }
+
+    /** Asks {@code start} on the global region, when the command's turn has come rather than when it queued. */
+    @Override
+    public CompletableFuture<ConsoleAnswer> run(String command, BooleanSupplier start) {
         Objects.requireNonNull(command, "command");
+        Objects.requireNonNull(start, "start");
         CompletableFuture<ConsoleAnswer> answer = new CompletableFuture<>();
         String line = command.startsWith("/") ? command.substring(1) : command;
         scheduler.global(() -> {
+            if (!start.getAsBoolean()) {
+                return;
+            }
             try {
                 boolean ran = server.dispatchCommand(server.getConsoleSender(), line);
                 answer.complete(new ConsoleAnswer(ran, ran ? "" : "the server knows no such command"));

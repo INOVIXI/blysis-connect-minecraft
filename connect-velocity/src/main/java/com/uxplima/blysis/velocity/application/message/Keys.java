@@ -53,6 +53,9 @@ public enum Keys implements MessageKey {
             "refused.voucher_used", "<etag:'ERROR'> <body>That voucher was already redeemed. It is worth nothing now."),
     REFUSED_CODE_INVALID(
             "refused.code_invalid", "<etag:'ERROR'> <body>That code is wrong, used or expired. Make a new one."),
+    REFUSED_RATE_LIMITED(
+            "refused.rate_limited",
+            "<etag:'ERROR'> <body>That was tried too often. Wait a few minutes, then try again."),
     REFUSED_ALREADY_LINKED(
             "refused.already_linked",
             "<etag:'ERROR'> <body>This account or that member is already linked. Unlink it on the site first."),

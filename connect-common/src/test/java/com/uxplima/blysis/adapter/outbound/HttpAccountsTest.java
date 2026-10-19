@@ -163,6 +163,26 @@ final class HttpAccountsTest {
         assertThat(body().get("voucherId").getAsString()).isEqualTo("gv_abc");
     }
 
+    /**
+     * Found live: the sixth wrong link code in ten minutes read "the site does not answer right now", and a
+     * voucher sent too often would have read "it may have paid". The site answered, and nothing was done.
+     */
+    @Test
+    @DisplayName("a player's call the site limits is the site's refusal, with its code, not the site being away")
+    void aLimitedCallIsARefusal() throws IOException {
+        String limited = "{\"error\":\"Too many codes tried. Wait a few minutes.\",\"code\":\"rate_limited\"}";
+
+        assertThatThrownBy(() -> accounts(429, limited).verifyLink(NOTCH, "ABCD2345"))
+                .isInstanceOfSatisfying(SiteRefused.class, refused -> {
+                    assertThat(refused.code()).isEqualTo("rate_limited");
+                    assertThat(refused.stopsTheConnection()).isFalse();
+                });
+        stop();
+        assertThatThrownBy(() -> accounts(429, limited).redeemVoucher(NOTCH, "gv_abc"))
+                .isInstanceOfSatisfying(
+                        SiteRefused.class, refused -> assertThat(refused.code()).isEqualTo("rate_limited"));
+    }
+
     @Test
     @DisplayName("a name, a code or an answer the protocol cannot carry is refused here, in words a player reads")
     void whatTheProtocolCannotCarryIsRefusedBeforeItIsSent() throws IOException {

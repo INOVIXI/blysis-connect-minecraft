@@ -246,7 +246,7 @@ public final class HttpAccounts implements Accounts {
 
     @Override
     public List<TopEntry> top(String kind, String period, int limit) {
-        JsonObject answer = site.call(
+        JsonObject answer = site.ask(
                 "GET",
                 "credits/top?kind=" + kind + "&period=" + period + "&limit=" + limit,
                 null,
@@ -266,7 +266,7 @@ public final class HttpAccounts implements Accounts {
 
     @Override
     public Goal goal() {
-        JsonObject answer = site.call("GET", "community-goal", null, site.requestTimeout());
+        JsonObject answer = site.ask("GET", "community-goal", null, site.requestTimeout());
         return read("community-goal", () -> {
             if (!answer.get("active").getAsBoolean()) {
                 return Goal.NONE;
@@ -375,7 +375,7 @@ public final class HttpAccounts implements Accounts {
     }
 
     private JsonObject post(String path, JsonObject body) {
-        return site.call("POST", path, body, site.requestTimeout());
+        return site.ask("POST", path, body, site.requestTimeout());
     }
 
     private JsonObject withPlayer(PlayerRef player) {

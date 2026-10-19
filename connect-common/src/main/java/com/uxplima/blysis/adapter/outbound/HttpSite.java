@@ -223,10 +223,35 @@ public final class HttpSite implements Site {
     }
 
     /**
-     * Any call this page names, for the player-facing endpoints: the answer's body, or a {@link SiteRefused}
-     * carrying the site's code.
+     * Any call this page names, for the connection's own endpoints: the answer's body, or a {@link SiteRefused}
+     * carrying the site's code. A rate limit here is the site asking this process to slow down, so it reads as
+     * away and the loop backs off.
      */
     public JsonObject call(String method, String path, @Nullable JsonObject body, Duration timeout) {
+        HttpResponse<String> response = exchange(method, path, body, timeout);
+        return answerOf(response.statusCode(), response.body());
+    }
+
+    /**
+     * A call one player made. A rate limit with a code is the site's answer to that player: nothing was done,
+     * and the player reads why rather than that the site is away.
+     */
+    public JsonObject ask(String method, String path, @Nullable JsonObject body, Duration timeout) {
+        HttpResponse<String> response = exchange(method, path, body, timeout);
+        return answerToPlayer(response.statusCode(), response.body());
+    }
+
+    static JsonObject answerToPlayer(int status, @Nullable String body) {
+        JsonObject parsed = status == 429 ? parse(body) : null;
+        String code = parsed == null ? null : text(parsed, "code");
+        if (parsed != null && code != null) {
+            String message = text(parsed, "error");
+            throw new SiteRefused(status, code, message == null ? code : message);
+        }
+        return answerOf(status, body);
+    }
+
+    private HttpResponse<String> exchange(String method, String path, @Nullable JsonObject body, Duration timeout) {
         HttpRequest.Builder request = HttpRequest.newBuilder(URI.create(Protocol.endpoint(connection.site(), path)))
                 .timeout(timeout)
                 .header("Authorization", "Bearer " + connection.token())
@@ -238,8 +263,7 @@ public final class HttpSite implements Site {
             request.header("Content-Type", "application/json")
                     .method(method, HttpRequest.BodyPublishers.ofString(body.toString(), StandardCharsets.UTF_8));
         }
-        HttpResponse<String> response = send(request.build());
-        return answerOf(response.statusCode(), response.body());
+        return send(request.build());
     }
 
     private HttpResponse<String> send(HttpRequest request) {

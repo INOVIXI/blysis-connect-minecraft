@@ -202,6 +202,14 @@ public enum Keys implements MessageKey {
     LANGUAGE_UNKNOWN_PLAYER(
             "language.unknown-player", "<etag:'ERROR'> <body>Nobody called <value><input><body> has played here."),
 
+    COMMAND_ARGUMENT_KIND("command.argument.kind", "list"),
+    COMMAND_ARGUMENT_PERIOD("command.argument.period", "period"),
+    COMMAND_ARGUMENT_TO("command.argument.to", "member"),
+    COMMAND_ARGUMENT_AMOUNT("command.argument.amount", "amount"),
+    COMMAND_ARGUMENT_PLAYER("command.argument.player", "player"),
+    COMMAND_ARGUMENT_CODE("command.argument.code", "code"),
+    COMMAND_ARGUMENT_LANGUAGE("command.argument.language", "language"),
+
     COMMAND_NO_PERMISSION("command.no-permission", "<etag:'ERROR'> <body>You do not have permission to do that."),
 
     COMMAND_PLAYER_ONLY("command.player-only", "<etag:'ERROR'> <body>Only a player can run this command."),

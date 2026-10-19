@@ -117,14 +117,15 @@ public final class Purchasing {
     private void askQuantity(MenuActionContext context) {
         Player viewer = context.player();
         Basket basket = basketOf(context);
-        prompt(viewer, QUANTITY, messages.render(viewer, Keys.INPUT_QUANTITY), basket, typed -> {
-            try {
-                reopen(viewer, basket.withQuantity(Integer.parseInt(typed.strip())));
-            } catch (NumberFormatException notANumber) {
-                messages.send(viewer, Keys.REFUSED_QUANTITY_INVALID);
-                reopen(viewer, basket);
-            }
-        });
+        prompt(
+                viewer,
+                QUANTITY,
+                messages.render(viewer, Keys.INPUT_QUANTITY),
+                basket,
+                typed -> basket.typed(typed).ifPresentOrElse(chosen -> reopen(viewer, chosen), () -> {
+                    messages.send(viewer, Keys.REFUSED_QUANTITY_INVALID);
+                    reopen(viewer, basket);
+                }));
     }
 
     /** Offers the players online, with a button to type a name for a member who is not. */

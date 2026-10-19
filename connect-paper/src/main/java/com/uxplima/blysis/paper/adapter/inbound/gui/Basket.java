@@ -51,6 +51,20 @@ public record Basket(
         return withQuantity(quantity + step);
     }
 
+    /**
+     * The quantity a player typed, when it is a whole number from one to the most. Anything else is empty, so
+     * the player is told rather than handed a number they did not ask for.
+     */
+    public Optional<Basket> typed(String typed) {
+        int wanted;
+        try {
+            wanted = Integer.parseInt(typed.strip());
+        } catch (NumberFormatException notAWholeNumber) {
+            return Optional.empty();
+        }
+        return wanted < 1 || wanted > most() ? Optional.empty() : Optional.of(withQuantity(wanted));
+    }
+
     public Basket withQuantity(int wanted) {
         return new Basket(shelf, product, Math.max(1, Math.min(most(), wanted)), recipient, answers, null);
     }

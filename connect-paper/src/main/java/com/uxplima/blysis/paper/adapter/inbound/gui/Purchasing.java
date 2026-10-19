@@ -97,8 +97,7 @@ public final class Purchasing {
                 "most", context -> Integer.toString(basketOf(context).most()));
         bindings.placeholder("total", context -> Amounts.shown(basketOf(context).total()));
         bindings.placeholder("recipient", this::recipient);
-        bindings.placeholder(
-                "balance", context -> balance(context).map(Amounts::shown).orElse("?"));
+        bindings.placeholder("balance", context -> shownOrNothing(balance(context)));
         bindings.placeholder("after", this::after);
     }
 
@@ -275,9 +274,13 @@ public final class Purchasing {
     }
 
     private String after(MenuContext context) {
-        return balance(context)
-                .map(held -> Amounts.shown(held.subtract(basketOf(context).total())))
-                .orElse("?");
+        return shownOrNothing(
+                balance(context).map(held -> held.subtract(basketOf(context).total())));
+    }
+
+    /** An amount as it reads, or nothing, which leaves its row off the tile rather than printing a question mark. */
+    static String shownOrNothing(Optional<BigDecimal> amount) {
+        return amount.map(Amounts::shown).orElse("");
     }
 
     private static int step(MenuActionContext context) {

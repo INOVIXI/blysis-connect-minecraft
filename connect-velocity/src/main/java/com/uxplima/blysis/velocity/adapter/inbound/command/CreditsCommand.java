@@ -32,6 +32,8 @@ public final class CreditsCommand implements SimpleCommand {
 
     private static final int TOP_SIZE = 10;
     private static final List<String> STAFF = List.of("add", "remove", "set", "see");
+    private static final List<String> KINDS = List.of("balance", "topups", "latest");
+    private static final List<String> PERIODS = List.of("day", "month", "year", "all");
 
     private final Replies replies;
     private final Messages messages;
@@ -62,8 +64,12 @@ public final class CreditsCommand implements SimpleCommand {
 
     @Override
     public List<String> suggest(Invocation invocation) {
-        if (invocation.arguments().length > 1) {
-            return List.of();
+        String[] args = invocation.arguments();
+        if (args.length > 1) {
+            boolean top = args[0].equalsIgnoreCase("top");
+            List<String> words = !top || args.length > 3 ? List.of() : args.length == 2 ? KINDS : PERIODS;
+            String typed = args[args.length - 1].toLowerCase(Locale.ROOT);
+            return words.stream().filter(word -> word.startsWith(typed)).toList();
         }
         return Nodes.staff(invocation.source(), "blysis.admin.credits")
                 ? List.of("send", "top", "add", "remove", "set", "see")
@@ -130,9 +136,13 @@ public final class CreditsCommand implements SimpleCommand {
             messages.send(source, Keys.COMMAND_NO_PERMISSION);
             return;
         }
-        String asked = args.length > 1 ? args[1].toLowerCase(Locale.ROOT) : "balance";
-        String kind = List.of("topups", "latest").contains(asked) ? asked : "balance";
-        String period = args.length > 2 && List.of("day", "month", "year").contains(args[2]) ? args[2] : "all";
+        String kind = args.length > 1 ? args[1].toLowerCase(Locale.ROOT) : "balance";
+        String period = args.length > 2 ? args[2].toLowerCase(Locale.ROOT) : "all";
+        // A word that names no ranking used to read as the balance list, as though it had been asked for.
+        if (!KINDS.contains(kind) || !PERIODS.contains(period) || args.length > 3) {
+            messages.send(source, Keys.CREDITS_USAGE);
+            return;
+        }
         replies.ask(
                 source,
                 false,

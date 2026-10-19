@@ -101,7 +101,10 @@ public final class Purchasing {
         bindings.placeholder("total", context -> Amounts.shown(basketOf(context).total()));
         bindings.placeholder("recipient", this::recipient);
         bindings.placeholder("balance", context -> shownOrNothing(balance(context)));
-        bindings.placeholder("after", this::after);
+        bindings.placeholder(
+                "after", context -> afterOf(balance(context), basketOf(context).total()));
+        bindings.placeholder(
+                "short", context -> shortOf(balance(context), basketOf(context).total()));
     }
 
     private void productClicked(MenuActionContext context) {
@@ -297,9 +300,17 @@ public final class Purchasing {
                 .map(Profile::balance);
     }
 
-    private String after(MenuContext context) {
-        return shownOrNothing(
-                balance(context).map(held -> held.subtract(basketOf(context).total())));
+    /** The balance a purchase leaves, or nothing when the balance is unknown or does not cover it. */
+    static String afterOf(Optional<BigDecimal> held, BigDecimal total) {
+        return shownOrNothing(held.map(balance -> balance.subtract(total)).filter(left -> left.signum() >= 0));
+    }
+
+    /**
+     * How much a purchase is missing, or nothing when it is covered. A balance below zero is not one a member
+     * can have, so the tile says what is short instead.
+     */
+    static String shortOf(Optional<BigDecimal> held, BigDecimal total) {
+        return shownOrNothing(held.map(balance -> total.subtract(balance)).filter(missing -> missing.signum() > 0));
     }
 
     /** An amount as it reads, or nothing, which leaves its row off the tile rather than printing a question mark. */

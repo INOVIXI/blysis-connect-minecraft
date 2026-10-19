@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
@@ -164,7 +165,12 @@ public final class Announcements implements LinkWatcher {
             return;
         }
         ActionContext context = contextFor(who, valuesOf(event, who));
-        for (String line : lines) {
+        for (String written : lines) {
+            Optional<String> filled = CommandFields.fill(written, event.fields());
+            if (filled.isEmpty()) {
+                continue;
+            }
+            String line = filled.get();
             try {
                 ActionList.parse(List.of(line)).run(context);
             } catch (RuntimeException failed) {

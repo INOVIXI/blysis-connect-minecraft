@@ -71,6 +71,7 @@ import com.uxplima.uxmlib.text.language.LanguageFiles;
 import com.uxplima.uxmlib.text.language.LanguageResolver;
 import com.uxplima.uxmlib.text.language.LanguageServices;
 import com.uxplima.uxmlib.text.language.Languages;
+import com.uxplima.uxmlib.text.message.LocaleSource;
 import com.uxplima.uxmlib.text.message.MessageCatalog;
 import com.uxplima.uxmlib.text.message.Messages;
 import com.uxplima.uxmlib.text.style.Styler;
@@ -223,7 +224,7 @@ final class PluginModule {
                         plugin.getPluginMeta().getVersion())
                 .orElse(null);
         Surfaces surfaces = registerSurfaces(scheduler, messages, replies);
-        registerCommands(scheduler, messages, choices, replies, vouchers, redeeming, surfaces);
+        registerCommands(scheduler, messages, resolver, choices, replies, vouchers, redeeming, surfaces);
         connection.start();
     }
 
@@ -311,6 +312,7 @@ final class PluginModule {
     private void registerCommands(
             Scheduler scheduler,
             Messages messages,
+            LocaleSource locales,
             LanguageChoices choices,
             Replies replies,
             VoucherItems vouchers,
@@ -322,10 +324,7 @@ final class PluginModule {
         // read and then ignored, which is worse than not reading it at all.
         ConfiguredCommands commands =
                 ConfiguredCommands.load(plugin.getDataFolder().toPath().resolve("commands.conf"));
-        ParamResolvers resolvers = ParamResolvers.withDefaults()
-                .messages(CommandMessages.fromCatalogue(messages))
-                .replacer(FromConfig.class, commands.replacer())
-                .suggestions(LanguageSuggestions.KEY, new LanguageSuggestions(choices));
+        ParamResolvers resolvers = commandResolvers(messages, locales, commands, choices);
 
         if (commands.isEnabled(CreditsCommand.KEY, "credits")) {
             AnnotatedCommands.register(plugin, new CreditsCommand(replies, messages), resolvers, scheduler);
@@ -440,6 +439,20 @@ final class PluginModule {
         if (typing != null) {
             typing.settings().reload();
         }
+    }
+
+    /**
+     * What every command reads its words, its lines and its readers with. A player's language is the one the
+     * messages answer in, the one they chose: the library's own default reads the client, so its refusals
+     * and a command word for one language followed the client and not the choice.
+     */
+    static ParamResolvers commandResolvers(
+            Messages messages, LocaleSource locales, ConfiguredCommands commands, LanguageChoices choices) {
+        return ParamResolvers.withDefaults()
+                .messages(CommandMessages.fromCatalogue(messages))
+                .locales(locales)
+                .replacer(FromConfig.class, commands.replacer())
+                .suggestions(LanguageSuggestions.KEY, new LanguageSuggestions(choices));
     }
 
     /** The languages this plugin found, which is the set a player may choose from. */

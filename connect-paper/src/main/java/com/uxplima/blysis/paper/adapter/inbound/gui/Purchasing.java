@@ -86,6 +86,9 @@ public final class Purchasing {
                 "blysis:self",
                 context -> reopen(context.player(), basketOf(context).forRecipient(null)));
         bindings.action("blysis:confirm", context -> proceed(context.player(), basketOf(context)));
+        bindings.action(
+                "blysis:describe",
+                context -> describe(context.player(), basketOf(context).product()));
         bindings.action("blysis:choose", this::chosen);
 
         bindings.placeholder(
@@ -282,6 +285,19 @@ public final class Purchasing {
             return Math.max(1, Integer.parseInt(context.arg()));
         } catch (NumberFormatException notANumber) {
             return 1;
+        }
+    }
+
+    /** The whole of a product's words, in chat: what a Bedrock form's button has no room for. */
+    private void describe(Player viewer, Catalog.Product product) {
+        if (product.description().isBlank()) {
+            messages.send(viewer, Keys.STORE_UNDESCRIBED, Text.placeholder("product", product.title()));
+        } else {
+            messages.send(
+                    viewer,
+                    Keys.STORE_DESCRIBED,
+                    Text.placeholder("product", product.title()),
+                    Text.placeholder("description", product.description()));
         }
     }
 

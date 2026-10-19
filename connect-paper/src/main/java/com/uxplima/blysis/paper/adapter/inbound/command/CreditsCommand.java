@@ -12,11 +12,10 @@ import net.kyori.adventure.text.Component;
 
 import com.uxplima.blysis.application.Answer;
 import com.uxplima.blysis.application.Once;
-import com.uxplima.blysis.application.Profiles;
 import com.uxplima.blysis.domain.PlayerRef;
 import com.uxplima.blysis.domain.account.Amounts;
-import com.uxplima.blysis.domain.account.Profile;
 import com.uxplima.blysis.domain.account.TopEntry;
+import com.uxplima.blysis.paper.adapter.inbound.BalanceReply;
 import com.uxplima.blysis.paper.adapter.inbound.Replies;
 import com.uxplima.blysis.paper.application.message.Keys;
 import com.uxplima.uxmlib.command.Sender;
@@ -44,19 +43,19 @@ public final class CreditsCommand {
 
     private final Replies replies;
     private final Messages messages;
+    private final BalanceReply balance;
 
     public CreditsCommand(Replies replies, Messages messages) {
         this.replies = Objects.requireNonNull(replies, "replies");
         this.messages = Objects.requireNonNull(messages, "messages");
+        this.balance = new BalanceReply(replies, messages);
     }
 
     @Subcommand("")
     @Permission("blysis.credits")
     @PlayerOnly
     public void balance(Sender sender) {
-        Player player = sender.player().orElseThrow();
-        PlayerRef ref = Replies.refOf(player);
-        replies.ask(player, false, site -> site.profiles().shown(ref), shown -> sayBalance(player, shown));
+        balance.tell(sender.player().orElseThrow());
     }
 
     @FromConfig(value = "send", fallbackName = "send", description = "Send credits to another member")
@@ -146,19 +145,6 @@ public final class CreditsCommand {
                 site -> site.once()
                         .run(key -> site.accounts().adminCredits(actorOf(asker), target, operation, amount.get(), key)),
                 balance -> sayStaff(asker, target, balance));
-    }
-
-    /** The balance, or, while the site does not answer, the last one it gave and a word that it is old. */
-    private void sayBalance(Player player, Profiles.Shown shown) {
-        Profile profile = shown.profile();
-        if (!profile.linked()) {
-            messages.send(player, Keys.REFUSED_NOT_LINKED);
-            return;
-        }
-        messages.send(
-                player,
-                shown.remembered() ? Keys.CREDITS_BALANCE_REMEMBERED : Keys.CREDITS_BALANCE,
-                Text.placeholder("balance", Amounts.shown(profile.balance())));
     }
 
     private void sayStaff(CommandSender asker, String target, BigDecimal balance) {

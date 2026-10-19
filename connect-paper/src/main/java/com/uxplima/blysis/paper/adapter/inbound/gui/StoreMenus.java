@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import com.uxplima.blysis.application.CatalogCache;
 import com.uxplima.blysis.domain.account.Amounts;
 import com.uxplima.blysis.domain.account.Catalog;
+import com.uxplima.blysis.paper.adapter.inbound.BalanceReply;
 import com.uxplima.blysis.paper.adapter.inbound.Replies;
 import com.uxplima.blysis.paper.application.message.Keys;
 import com.uxplima.uxmlib.menu.binding.MenuBindings;
@@ -46,6 +47,8 @@ public final class StoreMenus {
         this.words = Objects.requireNonNull(words, "words");
 
         Objects.requireNonNull(bindings, "bindings");
+        BalanceReply balance = new BalanceReply(replies, messages);
+        bindings.action("blysis:balance", context -> balance.tell(context.player()));
         bindings.list("blysis:shelves", context -> context.subject(Shelf.class).shelves());
         bindings.list("blysis:products", context -> context.subject(Shelf.class).products());
         bindings.list(

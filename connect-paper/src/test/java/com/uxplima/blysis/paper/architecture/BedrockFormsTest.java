@@ -97,6 +97,30 @@ final class BedrockFormsTest {
                 .isEmpty();
     }
 
+    /**
+     * A tile tells a player something: a balance, a setting, where a thing stands. The form keeps a button
+     * only for what answers a tap, so a tile that answers none is a fact a Bedrock player never reads. The
+     * store's credit card was one: a Java player saw the balance on it and a Bedrock player saw nothing.
+     */
+    @Test
+    @DisplayName("every tile that tells a player something answers a tap, so a Bedrock viewer reads it too")
+    void everyTileIsAButton() throws IOException {
+        List<String> silent = new ArrayList<>();
+
+        for (Path window : windows()) {
+            specOf(window).items().forEach((name, item) -> {
+                boolean tile = item.lore().stream().anyMatch(line -> line.contains("tile:"));
+                if (tile && !becomesAButton(item)) {
+                    silent.add(window.getFileName() + " " + name);
+                }
+            });
+        }
+
+        assertThat(silent)
+                .describedAs("Give each a click: a Bedrock form draws no tile that answers no tap.")
+                .isEmpty();
+    }
+
     @Test
     @DisplayName("every window named as not a form is still shipped, so the set cannot rot")
     void theexemptedWindowsAreStillShipped() throws IOException {

@@ -149,6 +149,8 @@ public enum Keys implements MessageKey {
     ANNOUNCE_GOAL_TITLE("announce.goal-title", "<good>Goal reached"),
     ANNOUNCE_GOAL_SUBTITLE("announce.goal-subtitle", "<body><event-title>: <value><raised><body> of <value><goal>"),
     ANNOUNCE_SOMEONE("announce.someone", "Someone"),
+    STORE_DESCRIBED("store.described", "<tag:'BLYSIS'> <value><product><body>: <description>"),
+    STORE_UNDESCRIBED("store.undescribed", "<tag:'BLYSIS'> <value><product><body> says nothing more about itself."),
     ANNOUNCE_GIFT_RECEIVED(
             "announce.gift-received",
             "<tag:'BLYSIS'> <value><from><body> sent you <value><quantity>x <product><body>. It waits in your chest"

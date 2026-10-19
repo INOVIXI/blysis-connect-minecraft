@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 import com.uxplima.blysis.application.Answer;
 import com.uxplima.blysis.domain.PlayerRef;
@@ -15,6 +16,7 @@ import com.uxplima.blysis.paper.adapter.outbound.VoucherItems;
 import com.uxplima.blysis.paper.application.message.Keys;
 import com.uxplima.uxmlib.text.Text;
 import com.uxplima.uxmlib.text.message.Messages;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Redeeming the voucher a player holds. The site pays once per id; the item is taken when the site paid, or
@@ -86,12 +88,36 @@ public final class Redeeming {
         }
     }
 
-    /** Takes one voucher of this id from the hand, if it is still there: the player may have moved it. */
+    /**
+     * Takes one voucher of this id from the player, the hand first. Between the click and the answer the
+     * player may have moved to another slot or carried the item off on the cursor, and a voucher the site
+     * already paid must not stay behind looking as good as new.
+     */
     private void takeOne(Player player, EquipmentSlot hand, String id) {
-        ItemStack held = player.getInventory().getItem(hand);
-        if (vouchers.idOf(held).filter(id::equals).isPresent()) {
-            held.setAmount(held.getAmount() - 1);
-            player.getInventory().setItem(hand, held.getAmount() <= 0 ? null : held);
+        PlayerInventory inventory = player.getInventory();
+        if (isThis(inventory.getItem(hand), id)) {
+            inventory.setItem(hand, lessOne(inventory.getItem(hand)));
+            return;
         }
+        ItemStack[] contents = inventory.getContents();
+        for (int slot = 0; slot < contents.length; slot++) {
+            ItemStack item = contents[slot];
+            if (item != null && isThis(item, id)) {
+                inventory.setItem(slot, lessOne(item));
+                return;
+            }
+        }
+        if (isThis(player.getItemOnCursor(), id)) {
+            player.setItemOnCursor(lessOne(player.getItemOnCursor()));
+        }
+    }
+
+    private boolean isThis(ItemStack item, String id) {
+        return vouchers.idOf(item).filter(id::equals).isPresent();
+    }
+
+    private static @Nullable ItemStack lessOne(ItemStack item) {
+        item.setAmount(item.getAmount() - 1);
+        return item.getAmount() <= 0 ? null : item;
     }
 }

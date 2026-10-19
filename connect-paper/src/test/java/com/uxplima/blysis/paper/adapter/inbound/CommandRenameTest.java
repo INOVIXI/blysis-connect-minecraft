@@ -19,6 +19,7 @@ import com.uxplima.uxmlib.command.annotation.AnnotatedCommands;
 import com.uxplima.uxmlib.command.annotation.ConfiguredCommands;
 import com.uxplima.uxmlib.command.annotation.ParamResolvers;
 import com.uxplima.uxmlib.command.annotation.annotations.FromConfig;
+import com.uxplima.uxmlib.common.Log;
 import com.uxplima.uxmlib.text.language.LanguageChoices;
 import com.uxplima.uxmlib.text.language.LanguageResolver;
 import com.uxplima.uxmlib.text.language.PlayerLanguages;
@@ -62,7 +63,8 @@ final class CommandRenameTest {
         ParamResolvers resolvers = ParamResolvers.withDefaults()
                 .replacer(FromConfig.class, commands.replacer())
                 .suggestions(LanguageSuggestions.KEY, new LanguageSuggestions(choices));
-        AdminCommand handler = new AdminCommand(settings, messages(), "test", new DirectScheduler(), List::of, choices);
+        AdminCommand handler =
+                new AdminCommand(settings, messages(), "test", new DirectScheduler(), List::of, choices, Log.NONE);
 
         assertThat(AnnotatedCommands.buildNode(handler, resolvers).getLiteral()).isEqualTo("renamed");
     }

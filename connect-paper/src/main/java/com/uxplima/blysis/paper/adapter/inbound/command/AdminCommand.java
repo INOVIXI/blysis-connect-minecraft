@@ -21,6 +21,7 @@ import com.uxplima.uxmlib.command.annotation.annotations.FromConfig;
 import com.uxplima.uxmlib.command.annotation.annotations.Permission;
 import com.uxplima.uxmlib.command.annotation.annotations.PlayerOnly;
 import com.uxplima.uxmlib.command.annotation.annotations.Subcommand;
+import com.uxplima.uxmlib.common.Log;
 import com.uxplima.uxmlib.health.HealthCheck;
 import com.uxplima.uxmlib.health.HealthReport;
 import com.uxplima.uxmlib.scheduler.Scheduler;
@@ -47,6 +48,7 @@ public final class AdminCommand {
     private final Supplier<List<HealthCheck>> health;
     private final LanguageChoices choices;
     private final LanguageOfAnotherPlayer another;
+    private final Log log;
 
     public AdminCommand(
             PluginSettings settings,
@@ -54,13 +56,15 @@ public final class AdminCommand {
             String version,
             Scheduler scheduler,
             Supplier<List<HealthCheck>> health,
-            LanguageChoices choices) {
+            LanguageChoices choices,
+            Log log) {
         this.settings = Objects.requireNonNull(settings, "settings");
         this.messages = Objects.requireNonNull(messages, "messages");
         this.version = Objects.requireNonNull(version, "version");
         this.scheduler = Objects.requireNonNull(scheduler, "scheduler");
         this.health = Objects.requireNonNull(health, "health");
         this.choices = Objects.requireNonNull(choices, "choices");
+        this.log = Objects.requireNonNull(log, "log");
         this.another = new LanguageOfAnotherPlayer(
                 messages, choices, () -> settings.current().language().forcedLocale());
     }
@@ -86,8 +90,10 @@ public final class AdminCommand {
         } catch (RuntimeException reloadFailed) {
             // The previous snapshot stays in place, so the server keeps running on the last good
             // configuration. The console carries the reason; the operator only needs to know it failed.
+            // Thrown on, it reached the sender a second time as the server's own "something went wrong".
+            log.error("The reload failed, and the last configuration read stays in use.", reloadFailed);
             messages.send(sender.bukkit(), Keys.RELOAD_FAILED);
-            throw reloadFailed;
+            return;
         }
         long millis = (System.nanoTime() - startedAt) / 1_000_000L;
         messages.send(sender.bukkit(), Keys.RELOADED, Text.placeholder("ms", String.valueOf(millis)));

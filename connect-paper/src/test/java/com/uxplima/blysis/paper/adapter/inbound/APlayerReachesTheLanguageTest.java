@@ -29,6 +29,7 @@ import com.uxplima.uxmlib.command.annotation.AnnotatedCommands;
 import com.uxplima.uxmlib.command.annotation.ConfiguredCommands;
 import com.uxplima.uxmlib.command.annotation.ParamResolvers;
 import com.uxplima.uxmlib.command.annotation.annotations.FromConfig;
+import com.uxplima.uxmlib.common.Log;
 import com.uxplima.uxmlib.text.language.LanguageChoices;
 import com.uxplima.uxmlib.text.language.LanguageResolver;
 import com.uxplima.uxmlib.text.language.PlayerLanguages;
@@ -67,7 +68,8 @@ final class APlayerReachesTheLanguageTest {
         Messages messages = new Messages(
                 MessageCatalogLoader.fromNodes(Map.of(), Locale.ENGLISH), LocaleSource.ofDefault(Locale.ENGLISH));
         CommandNode<CommandSourceStack> root = AnnotatedCommands.buildNode(
-                new AdminCommand(settings, messages, "test", new DirectScheduler(), List::of, choices), resolvers);
+                new AdminCommand(settings, messages, "test", new DirectScheduler(), List::of, choices, Log.NONE),
+                resolvers);
 
         CommandSourceStack player = holding("blysis.language");
         assertThat(root.canUse(player)).isTrue();

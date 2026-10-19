@@ -25,6 +25,7 @@ import com.uxplima.blysis.paper.adapter.outbound.PluginSettings;
 import com.uxplima.blysis.paper.testing.DirectScheduler;
 import com.uxplima.uxmlib.command.annotation.AnnotatedCommands;
 import com.uxplima.uxmlib.command.annotation.ConfiguredCommands;
+import com.uxplima.uxmlib.common.Log;
 import com.uxplima.uxmlib.text.language.LanguageChoices;
 import com.uxplima.uxmlib.text.language.LanguageResolver;
 import com.uxplima.uxmlib.text.language.PlayerLanguages;
@@ -77,7 +78,7 @@ final class CommandsReadTheChosenLanguageTest {
         when(source.getSender()).thenReturn(mallory);
 
         CommandNode<CommandSourceStack> root = AnnotatedCommands.buildNode(
-                new AdminCommand(settings, messages, "test", new DirectScheduler(), List::of, choices),
+                new AdminCommand(settings, messages, "test", new DirectScheduler(), List::of, choices, Log.NONE),
                 PluginModule.commandResolvers(messages, resolver, ConfiguredCommands.load(file), choices));
 
         CommandNode<CommandSourceStack> dil = root.getChild("dil");

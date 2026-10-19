@@ -357,7 +357,8 @@ final class PluginModule {
                             plugin.getPluginMeta().getVersion(),
                             scheduler,
                             this::healthChecks,
-                            choices),
+                            choices,
+                            Log.of(plugin.getLogger())),
                     resolvers,
                     scheduler);
         }

@@ -27,14 +27,19 @@ final class CommandFieldsTest {
         assertThat(CommandFields.fill("[player] say <event-product>", fields)).contains("[player] say Hero");
     }
 
+    /**
+     * Any value a command would have to change to carry runs nothing: changed, a value is a guess at what
+     * somebody meant, and a guess in a console command is how a rank lands on the wrong account.
+     */
     @Test
-    @DisplayName("a value cannot add an argument, pick other players or start another command")
-    void aValueIsOneArgument() {
-        Map<String, String> fields = Map.of("product", "@a; op x\nstop", "quantity", "--force 2");
+    @DisplayName("a value cannot add an argument, pick other players, start another command or pass as a flag")
+    void aValueIsOneArgumentOrNothing() {
+        Map<String, String> fields = Map.of("product", "@a; op x\nstop", "quantity", "--force", "title", "Hero rank");
 
         assertThat(CommandFields.fill("[console] give Steve <product> stone", fields))
-                .contains("[console] give Steve a_op_x_stop stone");
-        assertThat(CommandFields.fill("[console] say <quantity>", fields)).contains("[console] say force_2");
+                .isEmpty();
+        assertThat(CommandFields.fill("[console] say <quantity>", fields)).isEmpty();
+        assertThat(CommandFields.fill("[console] say <title>", fields)).isEmpty();
     }
 
     /**
@@ -48,7 +53,7 @@ final class CommandFieldsTest {
                 .isEmpty();
         assertThat(CommandFields.fill("[console] lp user <player> parent add vip", Map.of("player", "Steve x")))
                 .isEmpty();
-        assertThat(CommandFields.fill("[console] give <from> stone", Map.of("from", "a b")))
+        assertThat(CommandFields.fill("[console] give <buyer> stone", Map.of("buyer", "a b")))
                 .isEmpty();
     }
 
@@ -75,6 +80,8 @@ final class CommandFieldsTest {
                 .isEmpty();
         assertThat(CommandFields.fill("[console] say a purchase of <product>", Map.of("product", "Hero")))
                 .contains("[console] say a purchase of Hero");
+        assertThat(CommandFields.fill("[console] say <product>", Map.of("product", "Hero", "player", "@a")))
+                .contains("[console] say Hero");
     }
 
     @Test

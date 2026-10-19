@@ -12,11 +12,14 @@ import org.bukkit.entity.Player;
 
 import net.kyori.adventure.text.Component;
 
+import com.uxplima.blysis.application.Answer;
+import com.uxplima.blysis.application.SiteSession;
 import com.uxplima.blysis.domain.PlayerRef;
 import com.uxplima.blysis.domain.account.Amounts;
 import com.uxplima.blysis.domain.account.Catalog;
 import com.uxplima.blysis.domain.account.Profile;
 import com.uxplima.blysis.domain.account.Purchase;
+import com.uxplima.blysis.domain.account.Quote;
 import com.uxplima.blysis.paper.adapter.inbound.Replies;
 import com.uxplima.blysis.paper.application.message.Keys;
 import com.uxplima.uxmlib.gui.input.TextInput;
@@ -256,8 +259,28 @@ public final class Purchasing {
         input.promptResolved(viewer, point, label, null, then, () -> reopen(viewer, basket));
     }
 
+    /**
+     * Opens the purchase window on this basket, priced for this player. The catalogue is one list for every
+     * player, so its price leaves out what this member's own purchases and the quantity take off; the site's
+     * quote is asked first, and the catalogue's price stands when the site cannot answer or the player has no
+     * account there.
+     */
     private void reopen(Player viewer, Basket basket) {
-        windows.open(viewer, BASKET, basket);
+        PlayerRef ref = Replies.refOf(viewer);
+        Optional<SiteSession> site = replies.session().filter(SiteSession::reachable);
+        boolean unlinked = site.flatMap(open -> open.profiles().lastKnown(ref))
+                .filter(profile -> !profile.linked())
+                .isPresent();
+        if (site.isEmpty() || unlinked) {
+            windows.open(viewer, BASKET, basket);
+            return;
+        }
+        replies.onAsync(() -> {
+            Answer<Quote> quote = Answer.of(() ->
+                    site.get().accounts().quote(ref, basket.product().id(), basket.quantity(), basket.recipient()));
+            Basket shown = quote instanceof Answer.Given<Quote> given ? basket.quoted(given.value()) : basket;
+            replies.onPlayer(viewer, () -> windows.open(viewer, BASKET, shown));
+        });
     }
 
     private String recipient(MenuContext context) {

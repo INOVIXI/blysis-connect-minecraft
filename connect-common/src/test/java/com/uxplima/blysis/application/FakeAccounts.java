@@ -17,6 +17,7 @@ import com.uxplima.blysis.domain.account.Goal;
 import com.uxplima.blysis.domain.account.LinkCode;
 import com.uxplima.blysis.domain.account.Profile;
 import com.uxplima.blysis.domain.account.Purchase;
+import com.uxplima.blysis.domain.account.Quote;
 import com.uxplima.blysis.domain.account.SentGift;
 import com.uxplima.blysis.domain.account.TopEntry;
 import com.uxplima.blysis.domain.account.Voucher;
@@ -66,6 +67,11 @@ final class FakeAccounts implements Accounts {
             String key) {
         purchaseKeys.add(key);
         return next(purchases, "purchase");
+    }
+
+    @Override
+    public Quote quote(PlayerRef player, String productId, int quantity, @Nullable String recipient) {
+        throw new AssertionError("quote");
     }
 
     @Override

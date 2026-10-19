@@ -12,6 +12,7 @@ import com.uxplima.blysis.domain.account.Goal;
 import com.uxplima.blysis.domain.account.LinkCode;
 import com.uxplima.blysis.domain.account.Profile;
 import com.uxplima.blysis.domain.account.Purchase;
+import com.uxplima.blysis.domain.account.Quote;
 import com.uxplima.blysis.domain.account.SentGift;
 import com.uxplima.blysis.domain.account.TopEntry;
 import com.uxplima.blysis.domain.account.Voucher;
@@ -43,6 +44,9 @@ public interface Accounts {
             Map<String, String> fields,
             @Nullable String recipient,
             String key);
+
+    /** What {@link #purchase} would take for this basket, before the player confirms it. Moves no money. */
+    Quote quote(PlayerRef player, String productId, int quantity, @Nullable String recipient);
 
     List<ChestItem> chest(PlayerRef player);
 

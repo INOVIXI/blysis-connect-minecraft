@@ -21,6 +21,7 @@ import com.uxplima.blysis.domain.account.Goal;
 import com.uxplima.blysis.domain.account.LinkCode;
 import com.uxplima.blysis.domain.account.Profile;
 import com.uxplima.blysis.domain.account.Purchase;
+import com.uxplima.blysis.domain.account.Quote;
 import com.uxplima.blysis.domain.account.SentGift;
 import com.uxplima.blysis.domain.account.TopEntry;
 import com.uxplima.blysis.domain.account.Voucher;
@@ -94,6 +95,23 @@ public final class HttpAccounts implements Accounts {
     public Optional<Catalog> catalog(@Nullable String knownVersion) {
         Optional<JsonObject> answer = site.getIfChanged("catalog", knownVersion);
         return answer.map(json -> read("catalog", () -> catalogOf(json)));
+    }
+
+    @Override
+    public Quote quote(PlayerRef player, String productId, int quantity, @Nullable String recipient) {
+        JsonObject body = withPlayer(player);
+        body.addProperty("productId", productId);
+        body.addProperty("quantity", quantity);
+        if (recipient != null) {
+            requireName(recipient);
+            body.addProperty("recipient", recipient);
+        }
+        JsonObject answer = post("store/quote", body);
+        return read(
+                "store/quote",
+                () -> new Quote(
+                        answer.get("each").getAsBigDecimal(),
+                        answer.get("total").getAsBigDecimal()));
     }
 
     @Override

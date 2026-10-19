@@ -220,4 +220,23 @@ final class HttpAccountsTest {
 
         assertThat(body().getAsJsonObject("actor").get("id").getAsString()).isEqualTo("console");
     }
+
+    /**
+     * The catalogue is one list for every player, so its price is the product's own. Found live: the confirm
+     * button said 5 and the purchase took 4 from a member who owned a cheaper product on the same shelf. The
+     * window asks the site what this basket costs this player.
+     */
+    @Test
+    @DisplayName("a quote asks the price of one basket for one player, and reads each and total")
+    void aQuote() throws IOException {
+        var quote = accounts(200, "{\"each\":4,\"total\":12}").quote(NOTCH, "p_big", 3, "Steve");
+
+        assertThat(lastPath.get()).isEqualTo("/api/v1/game-connect/store/quote");
+        assertThat(body().get("productId").getAsString()).isEqualTo("p_big");
+        assertThat(body().get("quantity").getAsInt()).isEqualTo(3);
+        assertThat(body().get("recipient").getAsString()).isEqualTo("Steve");
+        assertThat(body().has("idempotencyKey")).isFalse();
+        assertThat(quote.each()).isEqualByComparingTo("4");
+        assertThat(quote.total()).isEqualByComparingTo("12");
+    }
 }

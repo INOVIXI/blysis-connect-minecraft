@@ -1,5 +1,6 @@
 package com.uxplima.blysis.paper.adapter.inbound.gui;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -62,8 +63,7 @@ public final class StoreMenus {
         bindings.placeholder("name", StoreMenus::name);
         bindings.placeholder("about", StoreMenus::about);
         bindings.placeholder("path", StoreMenus::path);
-        bindings.placeholder(
-                "price", context -> Amounts.shown(productOf(context).price()));
+        bindings.placeholder("price", context -> Amounts.shown(priceOf(context)));
         bindings.placeholder("servers", this::servers);
         bindings.placeholder("stock", this::stock);
         bindings.placeholder(
@@ -184,6 +184,18 @@ public final class StoreMenus {
     private String shelfItem(MenuContext context) {
         Object entry = context.entry().orElse(null);
         return words.shelfIcon(entry instanceof Catalog.Category category ? category.icon() : null);
+    }
+
+    /** One of the product, priced for this player when a basket carries the site's quote. */
+    static BigDecimal priceOf(MenuContext context) {
+        if (context.entry().orElse(null) instanceof Catalog.Product product) {
+            return product.price();
+        }
+        Object subject = context.subjectRaw().orElse(null);
+        if (subject instanceof FieldChoice choice) {
+            return choice.basket().each();
+        }
+        return context.subject(Basket.class).each();
     }
 
     /** The product a tile is drawn for, or the one the window is about. */

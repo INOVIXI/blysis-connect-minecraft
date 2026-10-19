@@ -65,6 +65,8 @@ final class ARedeemedVoucherLeavesTest {
     @BeforeEach
     void setUp() {
         steve = MockBukkit.mock().addPlayer("Steve");
+        // The server grants the node to every player by default; MockBukkit reads no plugin file to know that.
+        steve.addAttachment(MockBukkit.createMockPlugin(), Redeeming.NODE, true);
         Scheduler scheduler = mock(Scheduler.class);
         when(scheduler.async(any(Runnable.class))).thenAnswer(call -> {
             async.add(call.getArgument(0));

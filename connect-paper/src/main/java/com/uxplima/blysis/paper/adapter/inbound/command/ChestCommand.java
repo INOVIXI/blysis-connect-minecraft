@@ -23,14 +23,14 @@ public final class ChestCommand {
     }
 
     @Subcommand("")
-    @Permission("blysis.chest")
+    @Permission(ChestMenus.NODE)
     @PlayerOnly
     public void open(Sender sender) {
         chest.openChest(sender.player().orElseThrow());
     }
 
     @FromConfig(value = "sent", fallbackName = "sent", description = "The gifts you sent, to take one back")
-    @Permission("blysis.chest")
+    @Permission(ChestMenus.NODE)
     @PlayerOnly
     public void sent(Sender sender) {
         chest.openSent(sender.player().orElseThrow());

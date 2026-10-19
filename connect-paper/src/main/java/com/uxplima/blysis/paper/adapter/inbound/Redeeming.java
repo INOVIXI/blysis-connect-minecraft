@@ -25,6 +25,9 @@ import org.jspecify.annotations.Nullable;
  */
 public final class Redeeming {
 
+    /** The node {@code /voucher redeem} asks, and a right click on a voucher with it. */
+    public static final String NODE = "blysis.voucher.redeem";
+
     private final Replies replies;
     private final Messages messages;
     private final VoucherItems vouchers;
@@ -42,6 +45,11 @@ public final class Redeeming {
         String id = vouchers.idOf(held).orElse(null);
         if (id == null) {
             return false;
+        }
+        if (!player.hasPermission(NODE)) {
+            // A right click reaches past the command, so the voucher asks the command's node itself.
+            messages.send(player, Keys.COMMAND_NO_PERMISSION);
+            return true;
         }
         if (inFlight.putIfAbsent(player.getUniqueId(), Boolean.TRUE) != null) {
             return true;

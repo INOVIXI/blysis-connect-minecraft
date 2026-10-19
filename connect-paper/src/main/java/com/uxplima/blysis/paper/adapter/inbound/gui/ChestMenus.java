@@ -35,6 +35,9 @@ public final class ChestMenus {
     /** The window of the gifts the player sent. */
     public static final String SENT = "sent";
 
+    /** The node {@code /chest} asks, and every other way into the chest or the sent gifts with it. */
+    public static final String NODE = "blysis.chest";
+
     private final Windows windows;
     private final Replies replies;
     private final Messages messages;
@@ -78,6 +81,9 @@ public final class ChestMenus {
     /** Asks the site what waits for the player and opens the chest on it. */
     public void openChest(Player viewer) {
         Objects.requireNonNull(viewer, "viewer");
+        if (refused(viewer)) {
+            return;
+        }
         PlayerRef ref = Replies.refOf(viewer);
         replies.ask(
                 viewer,
@@ -90,12 +96,24 @@ public final class ChestMenus {
     /** Asks the site for the gifts the player sent and opens the list. */
     public void openSent(Player viewer) {
         Objects.requireNonNull(viewer, "viewer");
+        if (refused(viewer)) {
+            return;
+        }
         PlayerRef ref = Replies.refOf(viewer);
         replies.ask(
                 viewer,
                 false,
                 site -> Answer.of(() -> new Sent(site.accounts().sentGifts(ref))),
                 sent -> replies.onPlayer(viewer, () -> windows.open(viewer, SENT, sent)));
+    }
+
+    /** A window button reaches past the command, so the window asks the command's node itself. */
+    private boolean refused(Player viewer) {
+        if (viewer.hasPermission(NODE)) {
+            return false;
+        }
+        messages.send(viewer, Keys.COMMAND_NO_PERMISSION);
+        return true;
     }
 
     private void toggleGifts(Player viewer) {

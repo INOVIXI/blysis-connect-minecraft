@@ -33,6 +33,9 @@ public final class StoreMenus {
     /** The window that lists the answers one question of a product allows. */
     public static final String OPTIONS = "options";
 
+    /** The node {@code /store} asks, and every other way into the store with it. */
+    public static final String NODE = "blysis.store";
+
     /** Between the shelves of a path. A mark, not a word, so no language has to translate it. */
     private static final String STEP = " › ";
 
@@ -78,6 +81,10 @@ public final class StoreMenus {
     /** Opens the top of the store, once the catalogue and the player's balance are at hand. */
     public void openStore(Player viewer) {
         Objects.requireNonNull(viewer, "viewer");
+        if (!viewer.hasPermission(NODE)) {
+            messages.send(viewer, Keys.COMMAND_NO_PERMISSION);
+            return;
+        }
         replies.session()
                 .ifPresentOrElse(
                         site -> replies.onAsync(() -> {

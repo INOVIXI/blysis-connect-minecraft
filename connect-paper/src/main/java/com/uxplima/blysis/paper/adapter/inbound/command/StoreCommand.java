@@ -23,7 +23,7 @@ public final class StoreCommand {
     }
 
     @Subcommand("")
-    @Permission("blysis.store")
+    @Permission(StoreMenus.NODE)
     @PlayerOnly
     public void open(Sender sender) {
         store.openStore(sender.player().orElseThrow());

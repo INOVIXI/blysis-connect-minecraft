@@ -119,7 +119,7 @@ public final class VoucherCommand {
     }
 
     @FromConfig(value = "redeem", fallbackName = "redeem", description = "Redeem the voucher in your hand")
-    @Permission("blysis.voucher.redeem")
+    @Permission(Redeeming.NODE)
     @PlayerOnly
     public void redeem(Sender sender) {
         Player player = sender.player().orElseThrow();

@@ -194,4 +194,30 @@ final class HttpAccountsTest {
                 });
         assertThat(lastPath.get()).isEmpty();
     }
+
+    /**
+     * Found live: every staff command typed on the console came back as invalid_request, because the console
+     * has no game id and the actor went out with {@code "id": null}, which the site's schema refuses. The site
+     * reads only the actor's name, so a console is sent as an actor whose id says it is the console.
+     */
+    @Test
+    @DisplayName("staff acting from the console are an actor the site accepts")
+    void theConsoleIsAnActor() throws IOException {
+        HttpAccounts accounts = accounts(200, "{\"balance\":1}");
+        PlayerRef console = new PlayerRef(null, "CONSOLE");
+
+        accounts.adminCredits(console, "Steve", "add", BigDecimal.ONE, "key-0005");
+        assertThat(body().getAsJsonObject("actor").get("id").isJsonNull()).isFalse();
+        assertThat(body().getAsJsonObject("actor").get("id").getAsString()).isEqualTo("console");
+        assertThat(body().getAsJsonObject("actor").get("name").getAsString()).isEqualTo("CONSOLE");
+    }
+
+    @Test
+    @DisplayName("a voucher staff mint from the console goes out with an actor the site accepts")
+    void theConsoleMintsAVoucher() throws IOException {
+        accounts(200, "{\"voucherId\":\"gv_a\",\"amount\":1}")
+                .giveVoucher(new PlayerRef(null, "CONSOLE"), BigDecimal.ONE, "key-0006");
+
+        assertThat(body().getAsJsonObject("actor").get("id").getAsString()).isEqualTo("console");
+    }
 }

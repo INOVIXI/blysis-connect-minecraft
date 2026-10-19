@@ -32,6 +32,9 @@ import org.jspecify.annotations.Nullable;
  */
 public final class HttpAccounts implements Accounts {
 
+    /** The actor id of a change made from a console rather than by a player. */
+    private static final String CONSOLE = "console";
+
     /** The longest name, code and answer the protocol carries; past them the site can only call the body malformed. */
     private static final int MOST_NAME = 64;
 
@@ -212,7 +215,7 @@ public final class HttpAccounts implements Accounts {
         requireName(target);
         JsonObject body = new JsonObject();
         body.addProperty("instance", instance);
-        body.add("actor", player(actor));
+        body.add("actor", actor(actor));
         body.addProperty("target", target);
         body.addProperty("operation", operation);
         if (amount != null) {
@@ -272,7 +275,7 @@ public final class HttpAccounts implements Accounts {
     public Voucher giveVoucher(PlayerRef actor, BigDecimal amount, String key) {
         JsonObject body = new JsonObject();
         body.addProperty("instance", instance);
-        body.add("actor", player(actor));
+        body.add("actor", actor(actor));
         body.addProperty("amount", amount);
         body.addProperty("idempotencyKey", key);
         JsonObject answer = post("vouchers/give", body);
@@ -369,6 +372,14 @@ public final class HttpAccounts implements Accounts {
         body.addProperty("itemId", itemId);
         body.addProperty("idempotencyKey", key);
         return body;
+    }
+
+    /**
+     * Who did a staff change. The site reads the name; the id is required, and the console has none in any
+     * game, so it goes out as the console.
+     */
+    private static JsonObject actor(PlayerRef actor) {
+        return player(actor.id() == null ? new PlayerRef(CONSOLE, actor.name()) : actor);
     }
 
     private static JsonObject player(PlayerRef player) {

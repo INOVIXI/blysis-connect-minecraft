@@ -185,6 +185,11 @@ public final class Announcements implements LinkWatcher {
                 .style(line -> styler.tokens(line, messages.localeOf(who)))
                 .words(path ->
                         MiniMessage.miniMessage().serialize(messages.render(who, MessageKey.of(path, path), values)))
+                // A broadcast reaches players other than this one, and each reads it in their own language.
+                .perReader(
+                        (each, path) -> MiniMessage.miniMessage()
+                                .serialize(messages.render(each, MessageKey.of(path, path), values)),
+                        (each, line) -> styler.tokens(line, messages.localeOf(each)))
                 .broadcast(server)
                 // Credits live on the site and a line here never moves them, so a balance question answers none.
                 .wallet(Wallet.empty())

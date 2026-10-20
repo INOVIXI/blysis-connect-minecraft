@@ -27,7 +27,7 @@ import com.uxplima.blysis.velocity.adapter.outbound.ProxyLocales;
 import com.uxplima.blysis.velocity.adapter.outbound.ProxyPlayers;
 import com.uxplima.blysis.velocity.adapter.outbound.ProxySettings;
 import com.uxplima.blysis.velocity.application.message.Keys;
-import com.uxplima.uxmlib.text.language.LanguageFiles;
+import com.uxplima.uxmlib.text.language.LanguageFileUpdates;
 import com.uxplima.uxmlib.text.language.Languages;
 import com.uxplima.uxmlib.text.message.MessageCatalog;
 import com.uxplima.uxmlib.text.message.Messages;
@@ -240,7 +240,8 @@ final class ProxyModule {
             logger.warn("config.conf could not be brought up to date: {}", unreadable.getMessage());
         }
         copyIfAbsent("theme.conf", ThemeFiles.shared(folder, THEME_FOLDER));
-        LanguageFiles.extractShipped(getClass().getClassLoader(), MESSAGES, folder.resolve(MESSAGES));
+        reportCorrectedLines(
+                LanguageFileUpdates.bringUpToDate(getClass().getClassLoader(), MESSAGES, folder.resolve(MESSAGES)));
     }
 
     private void copyIfAbsent(String resource, Path target) {
@@ -277,6 +278,19 @@ final class ProxyModule {
         @Override
         public void error(String line) {
             logger.error(line);
+        }
+    }
+
+    /**
+     * Say which language lines this start corrected. A line nobody changed takes the words this release ships, and
+     * an operator who wonders why a line moved finds the answer in the console.
+     */
+    private void reportCorrectedLines(LanguageFileUpdates.Report report) {
+        if (!report.updated().isEmpty()) {
+            logger.info(
+                    "Corrected {} language lines nobody had changed: {}",
+                    report.updated().size(),
+                    report.updated());
         }
     }
 }

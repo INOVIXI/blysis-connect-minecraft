@@ -189,6 +189,9 @@ public final class Announcements implements LinkWatcher {
                 // Credits live on the site and a line here never moves them, so a balance question answers none.
                 .wallet(Wallet.empty())
                 .consoleSink(line -> server.dispatchCommand(server.getConsoleSender(), line))
+                // 0.174.0 hands a bar to whoever built the context, so a wait that ends early can take it down.
+                // Nothing here takes one down yet, so a bar runs its seconds, as it did before.
+                .barShown((reader, bar) -> {})
                 .playerSink(line -> server.dispatchCommand(who, line));
         if (who instanceof Player player) {
             built.player(player).itemStore(ItemStore.inventory()).later(takesTheBarDown(player));

@@ -381,16 +381,10 @@ final class PluginModule {
                 bindings.conditions());
         BedrockDetector bedrock = BedrockDetector.forServer(plugin.getServer());
         BedrockScreen screen = BedrockScreen.forServer(plugin.getServer());
-        Menus engine = new Menus(
-                renderer,
-                scheduler,
-                bindings.lists(),
-                null,
-                bindings.actions(),
-                bindings.conditions(),
-                null,
-                bedrock,
-                screen);
+        Menus engine = Menus.builder(renderer, scheduler, bindings.lists())
+                .openRegistries(bindings.actions(), bindings.conditions())
+                .bedrock(bedrock, screen)
+                .build();
         MenuBasics.register(bindings, engine);
         MenuListener clicks = new MenuListener(renderer, bindings.actions(), bindings.conditions(), scheduler, plugin);
         clicks.install();
